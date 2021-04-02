@@ -3,10 +3,14 @@ from bs4 import BeautifulSoup
 import re
 import json
 import pymongo
+import re
+import time
+import random
+import datetime
 
 RAE_URL = 'https://dle.rae.es/'
 
-f = open("credentials.txt", "r")
+f = open('data/credentials.txt', 'r')
 cred = f.read()
 
 def extraction(word):
@@ -38,6 +42,9 @@ def transform(data):
         word['articles'] = []
         # Get lemma
         word['lemma'] = articles[0].find('header', attrs={'class': 'f'}).text
+        # Replace numbers in lemma TODO
+        word['lemma'] = re.sub('\d', '', word['lemma']) 
+        print(word['lemma'])
         # Set source
         word['source'] = 'rae'
         # Check masculine-feminine orthopraphy
@@ -104,7 +111,8 @@ def transform(data):
                         complex['definition'] = definition_text.strip()
                         lemma_dict['complex'].append(complex)
             
-            word['articles'].append(lemma_dict)
+            if lemma_dict:
+                word['articles'].append(lemma_dict)
 
         return {
             'result': True,
@@ -121,17 +129,20 @@ def load(word):
         myclient = pymongo.MongoClient(cred)
         mydb = myclient["dictionary"]
         mycol = mydb['lemmasRae']
+        word['insertDate'] = datetime.datetime.utcnow()
         mycol.insert_one(word)
     except:
         print(f"Error during the load of {word['lemma']} word")
 
 def main():
-    data_ext = extraction("poeta")
-
-    if data_ext['result']:
-        data_tran = transform(data_ext['data'])
-        if data_tran['result']:
-            load(data_tran['data'])
+    with open('data/lemario.txt') as reader:
+        for line in reader.read(5).splitlines():
+            time.sleep(random.uniform(1, 5.9))
+            data_ext = extraction(line)
+            if data_ext['result']:
+                data_tran = transform(data_ext['data'])
+                if data_tran['result']:
+                    load(data_tran['data'])
         
 if __name__ == "__main__":
     main()

@@ -1,3 +1,7 @@
+.vscode/
+
 /back-env
 
-credentials.txt
+
+data/credentials.txt
+data/lemario.txt
