@@ -65,15 +65,26 @@ def transform(data):
         }
 
 def load(word):
-    pass
+    try:
+        myclient = pymongo.MongoClient(cred)
+        mydb = myclient["dictionary"]
+        mycol = mydb['lemmasFacil']
+        word['insertDate'] = datetime.datetime.utcnow()
+        mycol.insert_one(word)
+    except:
+        print(f"Error during the load of {word['lemma']} word")
 
 def main():
-    data_ext = extraction('cabrero')
-    if data_ext['result']:
-        data_tran = transform(data_ext['data'])
-        print(data_tran)
-        # if data_tran['result']:
-        #     load(data_tran['data'])
+    with open('data/lemario.txt') as reader:
+        for line in reader.read().splitlines():
+            time.sleep(random.uniform(0, 0.5))
+            data_ext = extraction(line)
+            if data_ext['result']:
+                data_tran = transform(data_ext['data'])
+                if data_tran['result']:
+                    load(data_tran['data'])
+
+    print("Finish!") 
 
 if __name__ == "__main__":
     main()
