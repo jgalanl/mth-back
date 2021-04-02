@@ -42,7 +42,7 @@ def transform(data):
         word['articles'] = []
         # Get lemma
         word['lemma'] = articles[0].find('header', attrs={'class': 'f'}).text
-        # Replace numbers in lemma TODO
+        # Replace numbers in lemma
         word['lemma'] = re.sub('\d', '', word['lemma']) 
         print(word['lemma'])
         # Set source
@@ -136,13 +136,15 @@ def load(word):
 
 def main():
     with open('data/lemario.txt') as reader:
-        for line in reader.read(5).splitlines():
-            time.sleep(random.uniform(1, 5.9))
+        for line in reader.read().splitlines():
+            time.sleep(random.uniform(0, 0.5))
             data_ext = extraction(line)
             if data_ext['result']:
                 data_tran = transform(data_ext['data'])
                 if data_tran['result']:
                     load(data_tran['data'])
+
+    print("Finish!")         
         
 if __name__ == "__main__":
     main()
