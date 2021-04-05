@@ -1,5 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
+import pymongo
+import time
+import random
+import datetime
 
 FACIL_URL = 'http://diccionariofacil.org/diccionario/'
 
@@ -75,14 +79,32 @@ def load(word):
         print(f"Error during the load of {word['lemma']} word")
 
 def main():
-    with open('data/lemario.txt') as reader:
-        for line in reader.read().splitlines():
-            time.sleep(random.uniform(0, 0.5))
-            data_ext = extraction(line)
-            if data_ext['result']:
-                data_tran = transform(data_ext['data'])
-                if data_tran['result']:
-                    load(data_tran['data'])
+    page = requests.get(url = 'http://diccionariofacil.org/diccionario/')
+    soup = BeautifulSoup(page.text, 'html.parser')
+    # Get all links
+    selector_letra = soup.find("ul", {"class": "selectorLetra"})
+    links = selector_letra.findAll("a")
+    for link in links:
+        # Get all entries for letters
+        nextPage = link
+        while(nextPage):
+            page = requests.get(url = nextPage['href'])
+            soup = BeautifulSoup(page.text, 'html.parser')
+            if page.status_code == 200:
+                entries = soup.findAll('h4')
+                for entry in entries:
+                    time.sleep(random.uniform(0, 0.5))
+                    print(entry)
+                    data_ext = extraction(entry.text)
+                    if data_ext['result']:
+                        data_tran = transform(data_ext['data'])
+                        if data_tran['result']:
+                            load(data_tran['data'])
+                
+                nextPage = soup.find('li', {'class': 'next'}).find('a')
+                print(nextPage)
+                if soup.find('li', {'class': 'next'}).find('a', {'class': 'disabled'}):
+                    break
 
     print("Finish!") 
 
