@@ -50,7 +50,6 @@ def load(word):
 def main():
     with open('data/crea_total.txt') as reader:
         for line in reader.read().splitlines()[1:]:
-            print(line)
             data_ext = extraction(line)
             if data_ext['result']:
                 data_tran = transform(data_ext['data'])
