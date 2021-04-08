@@ -45,7 +45,7 @@ def load(word):
         mycol.insert_one(word)
     except:
         with open('data/logs/crea_load.log', 'a') as f:
-            f.write(f"Error during loading of {data} crea. Date: {datetime.datetime.utcnow()}\n")
+            f.write(f"Error during loading of {word} crea. Date: {datetime.datetime.utcnow()}\n")
 
 def main():
     with open('data/crea_total.txt') as reader:
