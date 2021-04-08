@@ -29,8 +29,8 @@ def extraction(word):
                     'result': False
                 }
     except:
-        print(f"Error during the extraction of {word} word")
-        
+        with open('data/logs/crea_extracion.log', 'a') as f:
+            f.write(f"Error during extraction of {word} rae. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
         }
@@ -44,7 +44,6 @@ def transform(data):
         word['lemma'] = articles[0].find('header', attrs={'class': 'f'}).text
         # Replace numbers in lemma
         word['lemma'] = re.sub('\d', '', word['lemma']) 
-        print(word['lemma'])
         # Set source
         word['source'] = 'rae'
         # Check masculine-feminine orthopraphy
@@ -119,7 +118,8 @@ def transform(data):
             'data': word
             } 
     except:
-        print(f"Error during the transformation of {word['lemma']} word")
+        with open('data/logs/rae_transform.log', 'a') as f:
+            f.write(f"Error during transformation of {data} rae. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
         }
@@ -132,7 +132,8 @@ def load(word):
         word['insertDate'] = datetime.datetime.utcnow()
         mycol.insert_one(word)
     except:
-        print(f"Error during the load of {word['lemma']} word")
+        with open('data/logs/rae_load.log', 'a') as f:
+            f.write(f"Error during loading of {word} rae. Date: {datetime.datetime.utcnow()}\n")
 
 def main():
     with open('data/lemario.txt') as reader:
@@ -144,7 +145,8 @@ def main():
                 if data_tran['result']:
                     load(data_tran['data'])
 
-    print("Finish!")         
+    with open('data/logs/rae_process.log', 'a') as f:
+            f.write(f"Rae ETL finished. Date: {datetime.datetime.utcnow()}\n")       
         
 if __name__ == "__main__":
     main()
