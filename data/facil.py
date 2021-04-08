@@ -107,7 +107,7 @@ def main():
                     break
 
     with open('data/logs/facil_process.log', 'a') as f:
-            f.write(f"Crea ETL finished. Date: {datetime.datetime.utcnow()}\n")
+            f.write(f"Facil ETL finished. Date: {datetime.datetime.utcnow()}\n")
 
 if __name__ == "__main__":
     main()
