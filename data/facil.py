@@ -27,8 +27,8 @@ def extraction(word):
                     'result': False
                 }
     except:
-        print(f"Error during the extraction of {word} word")
-        
+        with open('data/logs/facil_extracion.log', 'a') as f:
+            f.write(f"Error during extraction of {word} facil. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
         }
@@ -63,7 +63,8 @@ def transform(data):
             'data': word
             } 
     except:
-        print(f"Error during the transformation of {word['lemma']} word")
+        with open('data/logs/facil_transform.log', 'a') as f:
+            f.write(f"Error during transformation of {data} facil. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
         }
@@ -76,7 +77,8 @@ def load(word):
         word['insertDate'] = datetime.datetime.utcnow()
         mycol.insert_one(word)
     except:
-        print(f"Error during the load of {word['lemma']} word")
+        with open('data/logs/facil_load.log', 'a') as f:
+            f.write(f"Error during loading of {word} facil. Date: {datetime.datetime.utcnow()}\n")
 
 def main():
     page = requests.get(url = 'http://diccionariofacil.org/diccionario/')
@@ -94,7 +96,6 @@ def main():
                 entries = soup.findAll('h4')
                 for entry in entries:
                     time.sleep(random.uniform(0, 0.5))
-                    print(entry)
                     data_ext = extraction(entry.text)
                     if data_ext['result']:
                         data_tran = transform(data_ext['data'])
@@ -102,11 +103,11 @@ def main():
                             load(data_tran['data'])
                 
                 nextPage = soup.find('li', {'class': 'next'}).find('a')
-                print(nextPage)
                 if soup.find('li', {'class': 'next'}).find('a', {'class': 'disabled'}):
                     break
 
-    print("Finish!") 
+    with open('data/logs/facil_process.log', 'a') as f:
+            f.write(f"Crea ETL finished. Date: {datetime.datetime.utcnow()}\n")
 
 if __name__ == "__main__":
     main()
