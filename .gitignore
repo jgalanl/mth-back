@@ -2,6 +2,11 @@
 
 /back-env
 
+data/logs/
+
 
 data/credentials.txt
 data/lemario.txt
+data/missed_words.txt
+data/crea_total.txt
+data/transfor_errors.txt
