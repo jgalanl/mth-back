@@ -20,10 +20,11 @@ def extraction(data):
 
 def transform(data):
     try:
-        word = {}
-        word['lemma'] = data[1].strip()
-        word['abs_freq'] = int(data[2].strip().replace(',', ''))
-        word['norm_freq'] = float(data[3].strip())
+        word = {
+            'lemma': data[1].strip(),
+            'abs_freq': int(data[2].strip().replace(',', '')),
+            'norm_freq': float(data[3].strip())
+        }
 
         return {
             'result': True,
