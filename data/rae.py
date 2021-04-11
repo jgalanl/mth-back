@@ -48,8 +48,12 @@ def transform(data):
         word['source'] = 'rae'
         # Check masculine-feminine orthopraphy
         if ',' in word['lemma']:
-            # If they are not equal update lemma and adding feminine
-            word['lemma'], word['feminine'] = word['lemma'].split(', ')
+            splited_lemma = word['lemma'].split(', ')
+            if len(splited_lemma) == 2:
+                word['lemma'], word['feminine'] = splited_lemma
+            else:
+                # Compound noums. Example: bio-, -bio, bia 
+                pass
         # Check references of the word (vease)
         if articles[0].find('p', attrs={'class': 'l2'}):
             word['references'] = articles[0].find('a', attrs={'class': 'a'}).text.replace('.','')
@@ -59,7 +63,9 @@ def transform(data):
             for lemma in lemmas:
                 lemma_dict = {}
                 if lemma.find('i') or article.find('p', attrs={'class': 'n2'}):
-                    lemma_dict['etymology'] = article.find('p', attrs={'class': 'n2'}).text
+                    etimology = article.find(attrs={'class': ['n2']})
+                    if etimology:
+                        lemma_dict['etimology'] = etimology.text
                 if article.find('p', attrs={'class': 'n3'}):
                     lemma_dict['etymology'] = article.find('p', attrs={'class': 'n3'}).text
                 if lemma.text.isupper():
@@ -80,12 +86,13 @@ def transform(data):
                         if definition_content.find('abbr', attrs={'class': ['d', 'g']}):
                             definition['category'] = definition_content.find('abbr', attrs={'class': ['d', 'g']})['title']
                         if definition_content.find('abbr', attrs={'class': 'c'}):
+                            # TODO. Check if field is a country
                             definition['field'] = definition_content.find('abbr', attrs={'class': 'c'})['title']
                         
                         definition_content = re.findall('.*?[.]', definition_content.text)
                         definition_text = ""
                         for i in definition_content:
-                            if(len(i) > 8):
+                            if len(i) > 8:
                                 definition_text += i
                         definition['definition'] = definition_text.strip()
                         lemma_dict['definitions'].append(definition)
@@ -98,8 +105,12 @@ def transform(data):
                         complex = {}
                         complex['forma'] = a.text
                         sibling = a.find_next_sibling('p')
-                        complex['order'] = int(sibling.find('span', attrs={'class': 'n_acep'}).text.replace('.', ''))
-                        complex['category'] = sibling.find('abbr', attrs={'class': ['d', 'g']})['title']            
+                        order = sibling.find('span', attrs={'class': 'n_acep'})
+                        if order:
+                            complex['order'] = int(order.text.replace('.', ''))
+                        category = sibling.find('abbr', attrs={'class': ['d', 'g']})
+                        if category:
+                            complex['category'] = category['title']            
                         if sibling.find('abbr', attrs={'class': 'c'}):
                             complex['country'] = sibling.find('abbr', attrs={'class': 'c'})['title']
                         definition_content = re.findall('.*?[.]', sibling.text)
@@ -117,9 +128,9 @@ def transform(data):
             'result': True,
             'data': word
             } 
-    except:
-        with open('data/logs/rae_transform.log', 'a') as f:
-            f.write(f"Error during transformation of {data} rae. Date: {datetime.datetime.utcnow()}\n")
+    except Exception as e:
+        with open('data/logs/rae_transform2.log', 'a') as f:
+            f.write(f"Error during transformation of {word['lemma']} rae. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
         }
@@ -136,8 +147,8 @@ def load(word):
             f.write(f"Error during loading of {word} rae. Date: {datetime.datetime.utcnow()}\n")
 
 def main():
-    with open('data/lemario.txt') as reader:
-        for line in reader.read().splitlines():
+    with open('data/transfor_errors.txt') as reader:
+        for line in reader.read().splitlines()[251:]:
             time.sleep(random.uniform(0, 0.5))
             data_ext = extraction(line)
             if data_ext['result']:
