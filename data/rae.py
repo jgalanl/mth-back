@@ -69,9 +69,9 @@ def transform(data):
                 if article.find('p', attrs={'class': 'n3'}):
                     lemma_dict['etymology'] = article.find('p', attrs={'class': 'n3'}).text
                 if lemma.text.isupper():
-                    lemma_dict['acronym']: True
+                    lemma_dict['acronym'] = True
                 if '-' in lemma.text:
-                    lemma_dict['compound']: True
+                    lemma_dict['compound'] = True
                 if article.find('p', attrs={'class': 'n5'}):
                     lemma_dict['orthography'] = article.find('p', attrs={'class': 'n5'}).text
                                     
@@ -147,7 +147,7 @@ def load(word):
             f.write(f"Error during loading of {word} rae. Date: {datetime.datetime.utcnow()}\n")
 
 def main():
-    with open('data/transfor_errors.txt') as reader:
+    with open('data/lemario.txt') as reader:
         for line in reader.read().splitlines()[251:]:
             time.sleep(random.uniform(0, 0.5))
             data_ext = extraction(line)
