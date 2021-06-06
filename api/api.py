@@ -21,6 +21,7 @@ db.init_app(app)
 
 @app.route('/', methods=['GET'])
 def root():
+    
     return {}, 200
 
 @app.route('/lemma/<word>')
