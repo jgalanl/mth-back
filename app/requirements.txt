@@ -1,0 +1,6 @@
+beautifulsoup4==4.9.3
+Flask==1.1.2
+Flask-Cors==3.0.10
+Flask-PyMongo==2.3.0
+Flask-WTF==0.14.3
+requests==2.25.1
