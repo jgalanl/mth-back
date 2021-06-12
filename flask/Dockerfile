@@ -1,5 +1,7 @@
 ﻿FROM python:3.7.2-stretch
 
+RUN mkdir -p /app
+
 WORKDIR /app
 
 ADD . /app
