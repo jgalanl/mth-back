@@ -8,16 +8,12 @@ services:
     environment:
       APP_ENV: "prod"
       APP_DEBUG: "False"
-      APP_PORT: 5001
+      APP_PORT: 5000
       MONGODB_DATABASE: flaskdb
       MONGODB_USERNAME: flaskuser
       MONGODB_PASSWORD: your_mongodb_password
       MONGODB_HOSTNAME: mongodb
       BACKEND_HOST: flask
-    expose: 
-      - 5001
-    ports:
-      - "5001:5001"
     volumes:
       - appdata:/var/www
     depends_on:
@@ -52,7 +48,7 @@ services:
       APP_DEBUG: "true"
       SERVICE_NAME: "webserver"
     ports:
-      - "3000:3000"
+      - "80:80"
       - "443:443"
     volumes:
       - nginxdata:/var/log/nginx
