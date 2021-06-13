@@ -13,8 +13,11 @@ services:
       MONGODB_USERNAME: flaskuser
       MONGODB_PASSWORD: your_mongodb_password
       MONGODB_HOSTNAME: mongodb
+      BACKEND_HOST: flask
     expose: 
       - 5001
+    ports:
+      - "5001:5001"
     volumes:
       - appdata:/var/www
     depends_on:
