@@ -7,6 +7,8 @@ data/logs/
 
 *__pycache__
 
+.env
+
 
 data/credentials.txt
 data/lemario.txt

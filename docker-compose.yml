@@ -9,11 +9,11 @@ services:
       APP_ENV: "prod"
       APP_DEBUG: "False"
       APP_PORT: 5000
-      MONGODB_DATABASE: flaskdb
-      MONGODB_USERNAME: flaskuser
-      MONGODB_PASSWORD: your_mongodb_password
-      MONGODB_HOSTNAME: mongodb
-      BACKEND_HOST: flask
+      MONGODB_DATABASE: ${MONGODB_DATABASE}
+      MONGODB_USERNAME: ${MONGODB_USERNAME}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD}
+      MONGODB_HOSTNAME: ${MONGODB_HOSTNAME}
+      BACKEND_HOST: ${BACKEND_HOST}
     volumes:
       - appdata:/var/www
     depends_on:
@@ -28,9 +28,9 @@ services:
     restart: unless-stopped
     command: mongod --auth
     environment:
-      MONGO_INITDB_ROOT_USERNAME: mongodbuser
-      MONGO_INITDB_ROOT_PASSWORD: your_mongodb_root_password
-      MONGO_INITDB_DATABASE: flaskdb
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
       MONGODB_DATA_DIR: /data/db
       MONDODB_LOG_DIR: /dev/null
     volumes:
