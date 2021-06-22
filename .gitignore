@@ -9,6 +9,7 @@ data/logs/
 
 .env
 
+flask/resources/sbw_vectors.bin
 
 data/credentials.txt
 data/lemario.txt
