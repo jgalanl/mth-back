@@ -10,6 +10,8 @@ data/logs/
 .env
 
 flask/resources/sbw_vectors.bin
+flask/resources/llavebabel.txt
+flask/resources/ngrams
 
 data/credentials.txt
 data/lemario.txt
