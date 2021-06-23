@@ -4,12 +4,13 @@ import numpy as np
 import math
 from sklearn import svm
 import nltk
+nltk.download('punkt')
 import pickle
 import re
 import string
 
-from Pyphen import Pyphen
-from word2vec import word2vec
+from resources.Pyphen import Pyphen
+from resources.word2vec import word2vec
 import pandas as pd
 
 from sklearn.metrics import precision_recall_fscore_support as pr
@@ -17,7 +18,7 @@ from sklearn.metrics import accuracy_score as ac
 from sklearn.metrics import f1_score
 from nltk.tag.stanford import StanfordPOSTagger
 from nltk.corpus import stopwords
-spanish_postagger = StanfordPOSTagger('spanish.tagger', 'stanford-postagger-3.8.0.jar', encoding='utf-8')
+spanish_postagger = StanfordPOSTagger('flask/resources/spanish.tagger', 'flask/resources/stanford-postagger-3.8.0.jar', encoding='utf-8')
 
 
 class clasificador:
@@ -32,7 +33,7 @@ class clasificador:
         self.data = []
         self.model = self.SVMLoad()
         self.model2 = self.SVMLoad2()
-        self.diccionariorae=self.loadfrecuenciarae('frecuenciasrae.csv')
+        self.diccionariorae=self.loadfrecuenciarae('flask/resources/frecuenciasrae.csv')
 
     def loadDic(self, path):
         dic = {}
@@ -483,7 +484,7 @@ class clasificador:
             clf = item
             # entrenamos
             clf.fit(X_train, y_train)
-            filename = "SVMModel.sav"
+            filename = "flask/resources/SVMModel.sav"
             pickle.dump(clf, open(filename, 'wb'))
 
     def SVMPredict(self, matrix_deploy):
@@ -505,11 +506,12 @@ class clasificador:
         print(bAcuracy,bPrecis, bRecall, bFscore, G1, f1x2)
 
     def SVMLoad(self):
-        filename = "SVMModel.sav"
+        filename = "flask/resources/SVMModel.sav"
         return pickle.load(open(filename, 'rb'))
 
     def SVMLoad2(self):
-        filename = "../backend/resources/SVMModelbea.sav"
+        # TODO. filename = "flask/resources/SVMModelbea.sav"
+        filename = "flask/resources/SVMModel.sav"
         return pickle.load(open(filename, 'rb'))
 
     def asignarDic(self,path):
