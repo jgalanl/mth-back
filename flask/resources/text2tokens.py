@@ -1,9 +1,10 @@
 import os
 import spacy
 import math
-from clasificador import clasificador
+from resources.clasificador import clasificador
 from nltk.stem.snowball import SnowballStemmer
 stemmer = SnowballStemmer(language='spanish')
+
 clasificadorobj=clasificador()
 
 class text2tokens:
