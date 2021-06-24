@@ -510,8 +510,7 @@ class clasificador:
         return pickle.load(open(filename, 'rb'))
 
     def SVMLoad2(self):
-        # TODO. filename = "flask/resources/SVMModelbea.sav"
-        filename = "flask/resources/SVMModel.sav"
+        filename = "flask/resources/SVMModelbea.sav"
         return pickle.load(open(filename, 'rb'))
 
     def asignarDic(self,path):
