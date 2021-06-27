@@ -18,7 +18,11 @@ from sklearn.metrics import accuracy_score as ac
 from sklearn.metrics import f1_score
 from nltk.tag.stanford import StanfordPOSTagger
 from nltk.corpus import stopwords
-spanish_postagger = StanfordPOSTagger('flask/resources/spanish.tagger', 'flask/resources/stanford-postagger-3.8.0.jar', encoding='utf-8')
+spanish_postagger = StanfordPOSTagger('resources/spanish.tagger', 'resources/stanford-postagger-3.8.0.jar', encoding='utf-8')
+
+import sys
+import sklearn.svm.classes
+sys.modules['sklearn.svm._classes'] = sklearn.svm.classes
 
 
 class clasificador:
@@ -26,14 +30,13 @@ class clasificador:
         self.scaled = 10 ** 6
         # a function to count the number of syllables
         self.word2vector = word2vec()
-        #self.Fasttextvector=FastText()
         self.Pyphenobj=Pyphen()
         self.x=0
         self.y=0
         self.data = []
         self.model = self.SVMLoad()
         self.model2 = self.SVMLoad2()
-        self.diccionariorae=self.loadfrecuenciarae('flask/resources/frecuenciasrae.csv')
+        self.diccionariorae=self.loadfrecuenciarae('resources/frecuenciasrae.csv')
 
     def loadDic(self, path):
         dic = {}
@@ -81,7 +84,6 @@ class clasificador:
             value = line[pos + 1:]
             key=key.strip()
             value=value.strip()
-            # print(key,freq)
             if key in dic: dic[key].append(value.lower())
             else:  dic[key] = [value.lower()]
         f.close()
@@ -199,16 +201,9 @@ class clasificador:
         else:
             sentence1 = sentence[0:start - 1]
             tokens1 = nltk.word_tokenize(sentence1)
-            #tokens1=sentence1.split(' ')
-            # try:
-            #     tokens1=toktok.tokenize(sentence1)
-            # except:
-            #     print sentence1
-            #     raise
             index = len(tokens1)
             if (index > -1 and tokens[index] != word):
                 index = -1
-            # print('Problems with',sentence,word)
 
         if (index - 2 >= 0):
             w_2 = tokens[index - 2]
@@ -480,11 +475,10 @@ class clasificador:
 
         # en nuestro caso solo se ejecutara una vez, porque solo tnemos un algoritmo
         for item in classifiers:
-            print(item)
             clf = item
             # entrenamos
             clf.fit(X_train, y_train)
-            filename = "flask/resources/SVMModel.sav"
+            filename = "resources/SVMModel.sav"
             pickle.dump(clf, open(filename, 'wb'))
 
     def SVMPredict(self, matrix_deploy):
@@ -506,11 +500,11 @@ class clasificador:
         print(bAcuracy,bPrecis, bRecall, bFscore, G1, f1x2)
 
     def SVMLoad(self):
-        filename = "flask/resources/SVMModel.sav"
+        filename = "resources/SVMModel.sav"
         return pickle.load(open(filename, 'rb'))
 
     def SVMLoad2(self):
-        filename = "flask/resources/SVMModelbea.sav"
+        filename = "resources/SVMModelbea.sav"
         return pickle.load(open(filename, 'rb'))
 
     def asignarDic(self,path):

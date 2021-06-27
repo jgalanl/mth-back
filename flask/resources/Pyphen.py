@@ -6,7 +6,6 @@ class Pyphen:
     def getNSyl(self,word):
         try:
             test = self.dic.inserted(word)
-            #print(test)
             count=0
             for i in test:
                 if i == '-':
@@ -15,7 +14,6 @@ class Pyphen:
             return count
         except:
             test = self.dic.inserted(str(word))
-            #print(test)
             count=0
             for i in test:
                 if i == '-':

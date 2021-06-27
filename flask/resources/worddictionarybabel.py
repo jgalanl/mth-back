@@ -1,7 +1,7 @@
 from babelnetpy.babelnet import BabelNet
 
 class worddictionarybabel:
-    bn = BabelNet(open("flask/resources/llavebabel.txt", "r").read())
+    bn = BabelNet(open("resources/llavebabel.txt", "r").read())
 
     def babelsearch(self, palabra):
         listasyn = list()

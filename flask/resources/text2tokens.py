@@ -73,11 +73,8 @@ class text2tokens:
 
     def cleanspecificdic(self,dicp):
         newdic={}
-        #print("entró a función")
         for key,value in dicp.items():
             if key.lower()!="incapacidad" and key.lower()!="incapacidades" and key.lower()!="impedidos" and key.lower()!="manos" and key.lower()!="poder":
                 newdic[key]=value        
-        #print(newdic)
         return newdic
                 
-        

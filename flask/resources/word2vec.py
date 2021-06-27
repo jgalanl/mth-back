@@ -1,7 +1,7 @@
 from gensim.models import KeyedVectors
 
 class word2vec:
-    model = KeyedVectors.load_word2vec_format("flask/resources/sbw_vectors.bin", binary=True)
+    model = KeyedVectors.load_word2vec_format("resources/sbw_vectors.bin", binary=True)
     def __init__(self):
         self.data = []
 
