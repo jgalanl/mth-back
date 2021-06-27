@@ -36,7 +36,7 @@ class Config(object):
         # self.totalTris = sum(self.trigrams.values())
 
 	    # DICCIONARIOE2R
-        path = 'flask/resources/stop_words/unigram2_non_stop_words.csv'
+        path = 'resources/stop_words/unigram2_non_stop_words.csv'
         self.uniE2R = self.clasificadorobj.loadDic3(path)
         self.uniE2R = {}
 
