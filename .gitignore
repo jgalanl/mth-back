@@ -11,6 +11,7 @@ data/logs/
 
 flask/resources/sbw_vectors.bin
 flask/resources/llavebabel.txt
+flask/resources/thesaurus_key.txt
 flask/resources/ngrams
 
 data/credentials.txt
@@ -18,3 +19,5 @@ data/lemario.txt
 data/missed_words.txt
 data/crea_total.txt
 data/transfor_errors.txt
+
+test/oxford_credentials.json
