@@ -56,45 +56,32 @@ def get_complex_words():
                         config.totalUnis, config.uniE2R) for sentencetags in words]
             if flag=='1':
                 predictedtags = [config.clasificadorobj.SVMPredict(rowdeploy) for rowdeploy in matrix_deploy]
-                print("entro en easier")
             elif flag=='0':
                 predictedtags = [config.clasificadorobj.SVMPredict2(rowdeploy) for rowdeploy in matrix_deploy]
-                print("entro en bea")
         if flag=='1':
             for j in range(0, len(words)):
                 sentencetags = words[j]
                 for i in range(0, len(sentencetags)):
                     if predictedtags[j][i] == 1:
-                        print("compleja"+" "+sentencetags[i][4])
                         complex_words.append(sentencetags[i])
                     elif predictedtags[j][i] == 0:
-                        print("simple"+" "+sentencetags[i][4])
                         numsil= config.clasificadorobj.Pyphenobj.getNSyl(sentencetags[i][4])
                         if  numsil >4:
                             complex_words.append(sentencetags[i])
-                            print(numsil)
         elif flag=='0':    
             for j in range(0, len(words)):
                 sentencetags = words[j]
                 for i in range(0, len(sentencetags)):
                     if sentencetags[i][4]=='crónicos' or sentencetags[i][4]=='vulnerables':
-                        print("add compleja"+" "+sentencetags[i][4])
                         complex_words.append(sentencetags[i])
                     if predictedtags[j][i] == 1:
                         if config.clasificadorobj.getfreqRAE(sentencetags[i][4])==None:
-                            print("none compleja"+" "+sentencetags[i][4])
                             complex_words.append(sentencetags[i])
                         elif int(config.clasificadorobj.getfreqRAE(sentencetags[i][4]))>1500:
-                            print("compleja pero mayor a 1500 en diccionario rae"+" "+sentencetags[i][4])
-                            complex_words.append(sentencetags[i])
-                        else:
-                            print("compleja pero menor a 1500 en diccionario rae"+" "+sentencetags[i][4])    
-                        
-                        
+                            complex_words.append(sentencetags[i]) 
+                                
 
         return jsonify(result=complex_words)
-
-        return response, HTTPStatus.OK
 
 
 @app.route('/api/definition-easy', methods=['GET'])
