@@ -1,14 +1,18 @@
 ﻿FROM python:3.7.2-stretch
 
-RUN mkdir -p /app
+RUN mkdir -p /flask
 
-WORKDIR /app
+WORKDIR /flask
 
-ADD . /app
+ADD . /flask
 
+# Spacy config
+RUN pip install -U pip setuptools wheel &&\
+    pip install -U spacy &&\
+    python -m spacy download es_core_news_md
+
+# Babelnet config
 RUN cd resources/babelnetpy && python setup.py install
-
-RUN python -m spacy download es_core_news_md
 
 RUN pip install -r requirements.txt
 
