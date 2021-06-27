@@ -1,13 +1,9 @@
-﻿import requests
+import requests
 import json
 
-headers = {
-    "app_id": "45be6888",
-    "app_key": "fc28e3b2831f4e5fd7858ffd7dcac97a" 
-}
 
-# app_id = "45be6888"
-# app_key = "fc28e3b2831f4e5fd7858ffd7dcac97a"
+with open('test/oxford_credentials.json') as f:
+    headers = json.load(f)
 
 language = "es"
 word_id = "tortilla"
