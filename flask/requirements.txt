@@ -60,8 +60,7 @@ toml==0.10.2
 torch==1.5
 tqdm==4.61.1
 typer==0.3.2
-urllib3==1.26.4
-uWSGI==2.0.19.1
+urllib3==1.26.5
 wasabi==0.8.2
 Werkzeug==1.0.1
 wrapt==1.12.1
