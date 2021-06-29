@@ -33,13 +33,11 @@ def index():
 
 @app.route('/api/complex-word', methods=['GET'])
 def get_complex_words():
-    if request.method == 'GET':
-        text = request.args.get('text')
-        flag = request.args.get('flag')
-
+    text = request.args.get('text')
+    flag = request.args.get('flag')
+    if text and flag:
         words = list()
         complex_words = list()
-        
         sentencelist =  text2tokens.text2sentences(text)
         if flag=='1':
             words = [text2tokens.sentence2tokenseasier(sentence) for sentence in sentencelist]
@@ -49,7 +47,7 @@ def get_complex_words():
 
         if words and words[0]:
             words = [item for item in words if item]
-            
+                
             matrix_deploy = [
                         config.clasificadorobj.getMatrix_Deploy(sentencetags, config.trigrams,config.totalTris, 
                         config.bigrams, config.unigrams, config.totalBis,
@@ -79,10 +77,22 @@ def get_complex_words():
                             complex_words.append(sentencetags[i])
                         elif int(config.clasificadorobj.getfreqRAE(sentencetags[i][4]))>1500:
                             complex_words.append(sentencetags[i]) 
-                                
 
-        return jsonify(result=complex_words)
+        response = {
+            'status': 'success',
+            'data': jsonify(complex_words)
+        }
 
+        return response, HTTPStatus.OK
+        
+    else:
+        response = {
+            'status': 'error',
+            'data': {},
+            'error': 'Expected text and flags arguments'
+        }
+
+        return response, HTTPStatus.BAD_REQUEST
 
 @app.route('/api/definition-easy', methods=['GET'])
 def get_definition_easy():
