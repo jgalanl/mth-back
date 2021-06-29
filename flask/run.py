@@ -33,6 +33,7 @@ def index():
 
 @app.route('/api/complex-word', methods=['GET'])
 def get_complex_words():
+<<<<<<< HEAD
     try:
         text = request.args.get('text')
         flag = request.args.get('flag')
@@ -40,6 +41,27 @@ def get_complex_words():
             words = list()
             complex_words = list()
             sentencelist =  text2tokens.text2sentences(text)
+=======
+    text = request.args.get('text')
+    flag = request.args.get('flag')
+    if text and flag:
+        words = list()
+        complex_words = list()
+        sentencelist =  text2tokens.text2sentences(text)
+        if flag=='1':
+            words = [text2tokens.sentence2tokenseasier(sentence) for sentence in sentencelist]
+        elif flag=='0':
+            words = [text2tokens.sentence2tokens(sentence) for sentence in sentencelist]
+        predictedtags = list()
+
+        if words and words[0]:
+            words = [item for item in words if item]
+                
+            matrix_deploy = [
+                        config.clasificadorobj.getMatrix_Deploy(sentencetags, config.trigrams,config.totalTris, 
+                        config.bigrams, config.unigrams, config.totalBis,
+                        config.totalUnis, config.uniE2R) for sentencetags in words]
+>>>>>>> c67555596ae4c18b7749034a99f58c40945e31ab
             if flag=='1':
                 words = [text2tokens.sentence2tokenseasier(sentence) for sentence in sentencelist]
             elif flag=='0':
@@ -73,6 +95,7 @@ def get_complex_words():
                     for i in range(0, len(sentencetags)):
                         if sentencetags[i][4]=='crónicos' or sentencetags[i][4]=='vulnerables':
                             complex_words.append(sentencetags[i])
+<<<<<<< HEAD
                         if predictedtags[j][i] == 1:
                             if config.clasificadorobj.getfreqRAE(sentencetags[i][4])==None:
                                 complex_words.append(sentencetags[i])
@@ -103,6 +126,26 @@ def get_complex_words():
             }
 
         return response, HTTPStatus.INTERNAL_SERVER_ERROR
+=======
+                        elif int(config.clasificadorobj.getfreqRAE(sentencetags[i][4]))>1500:
+                            complex_words.append(sentencetags[i]) 
+
+        response = {
+            'status': 'success',
+            'data': jsonify(complex_words)
+        }
+
+        return response, HTTPStatus.OK
+        
+    else:
+        response = {
+            'status': 'error',
+            'data': {},
+            'error': 'Expected text and flags arguments'
+        }
+
+        return response, HTTPStatus.BAD_REQUEST
+>>>>>>> c67555596ae4c18b7749034a99f58c40945e31ab
 
 @app.route('/api/definition-easy', methods=['GET'])
 def get_definition_easy():
