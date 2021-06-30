@@ -1,6 +1,7 @@
 ﻿import os
 
 from flask import Flask
+from flask.json import dumps
 
 app = Flask(__name__)
 
@@ -33,56 +34,79 @@ def index():
 
 @app.route('/api/complex-word', methods=['GET'])
 def get_complex_words():
-    if request.method == 'GET':
+    try:
         text = request.args.get('text')
         flag = request.args.get('flag')
-
-        words = list()
-        complex_words = list()
-        
-        sentencelist =  text2tokens.text2sentences(text)
-        if flag=='1':
-            words = [text2tokens.sentence2tokenseasier(sentence) for sentence in sentencelist]
-        elif flag=='0':
-            words = [text2tokens.sentence2tokens(sentence) for sentence in sentencelist]
-        predictedtags = list()
-
-        if words and words[0]:
-            words = [item for item in words if item]
+        if text and flag:
+            words = list()
+            complex_words = list()
             
-            matrix_deploy = [
-                        config.clasificadorobj.getMatrix_Deploy(sentencetags, config.trigrams,config.totalTris, 
-                        config.bigrams, config.unigrams, config.totalBis,
-                        config.totalUnis, config.uniE2R) for sentencetags in words]
+            sentencelist =  text2tokens.text2sentences(text)
             if flag=='1':
-                predictedtags = [config.clasificadorobj.SVMPredict(rowdeploy) for rowdeploy in matrix_deploy]
+                words = [text2tokens.sentence2tokenseasier(sentence) for sentence in sentencelist]
             elif flag=='0':
-                predictedtags = [config.clasificadorobj.SVMPredict2(rowdeploy) for rowdeploy in matrix_deploy]
-        if flag=='1':
-            for j in range(0, len(words)):
-                sentencetags = words[j]
-                for i in range(0, len(sentencetags)):
-                    if predictedtags[j][i] == 1:
-                        complex_words.append(sentencetags[i])
-                    elif predictedtags[j][i] == 0:
-                        numsil= config.clasificadorobj.Pyphenobj.getNSyl(sentencetags[i][4])
-                        if  numsil >4:
-                            complex_words.append(sentencetags[i])
-        elif flag=='0':    
-            for j in range(0, len(words)):
-                sentencetags = words[j]
-                for i in range(0, len(sentencetags)):
-                    if sentencetags[i][4]=='crónicos' or sentencetags[i][4]=='vulnerables':
-                        complex_words.append(sentencetags[i])
-                    if predictedtags[j][i] == 1:
-                        if config.clasificadorobj.getfreqRAE(sentencetags[i][4])==None:
-                            complex_words.append(sentencetags[i])
-                        elif int(config.clasificadorobj.getfreqRAE(sentencetags[i][4]))>1500:
-                            complex_words.append(sentencetags[i]) 
-                                
+                words = [text2tokens.sentence2tokens(sentence) for sentence in sentencelist]
+            predictedtags = list()
 
-        return jsonify(result=complex_words)
+            if words and words[0]:
+                words = [item for item in words if item]
+                    
+                matrix_deploy = [
+                            config.clasificadorobj.getMatrix_Deploy(sentencetags, config.trigrams,config.totalTris, 
+                            config.bigrams, config.unigrams, config.totalBis,
+                            config.totalUnis, config.uniE2R) for sentencetags in words]
+                if flag=='1':
+                    predictedtags = [config.clasificadorobj.SVMPredict(rowdeploy) for rowdeploy in matrix_deploy]
+                elif flag=='0':
+                    predictedtags = [config.clasificadorobj.SVMPredict2(rowdeploy) for rowdeploy in matrix_deploy]
+            if flag=='1':
+                for j in range(0, len(words)):
+                    sentencetags = words[j]
+                    for i in range(0, len(sentencetags)):
+                        if predictedtags[j][i] == 1:
+                            complex_words.append(sentencetags[i])
+                        elif predictedtags[j][i] == 0:
+                            numsil= config.clasificadorobj.Pyphenobj.getNSyl(sentencetags[i][4])
+                            if  numsil >4:
+                                complex_words.append(sentencetags[i])
+            elif flag=='0':    
+                for j in range(0, len(words)):
+                    sentencetags = words[j]
+                    for i in range(0, len(sentencetags)):
+                        if sentencetags[i][4]=='crónicos' or sentencetags[i][4]=='vulnerables':
+                            complex_words.append(sentencetags[i])
+                        if predictedtags[j][i] == 1:
+                            if config.clasificadorobj.getfreqRAE(sentencetags[i][4])==None:
+                                complex_words.append(sentencetags[i])
+                            elif int(config.clasificadorobj.getfreqRAE(sentencetags[i][4]))>1500:
+                                complex_words.append(sentencetags[i]) 
 
+            response = {
+                'status': 'success',
+                'data': complex_words
+            }
+
+            print(response)
+
+            return response, HTTPStatus.OK
+            
+        else:
+            response = {
+                'status': 'error',
+                'data': {},
+                'error': 'Expected text and flags arguments'
+            }
+
+            return response, HTTPStatus.BAD_REQUEST
+    
+    except Exception as e:
+        response = {
+                'status': 'error',
+                'trace': str(e),
+                'error': 'Internal server error'
+            }
+
+        return response, HTTPStatus.INTERNAL_SERVER_ERROR
 
 @app.route('/api/definition-easy', methods=['GET'])
 def get_definition_easy():
