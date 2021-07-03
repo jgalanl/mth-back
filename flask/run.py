@@ -1,27 +1,40 @@
 ﻿import os
+import re
 
-from flask import Flask
+import torch
+
+from flask import Flask, json, request, jsonify
 from flask.json import dumps
 
-app = Flask(__name__)
-
 from http import HTTPStatus
-from flask import request
 from flask_cors import cross_origin
+from json import loads
 
 import requests
 from bs4 import BeautifulSoup
 from markupsafe import escape
-from flask import jsonify
 
 from resources.text2tokens import text2tokens
-
 text2tokens = text2tokens()
 
+from transformers import BertForMaskedLM, BertTokenizer
+
+tokenizer = BertTokenizer.from_pretrained("resources/pytorch/", do_lower_case=False)
+model = BertForMaskedLM.from_pretrained("resources/pytorch/")
+model.eval()
+
+import spacy
+from inflector import Inflector, Spanish
+
+nlp = spacy.load('es_core_news_md')
+inflector = Inflector(Spanish)
 
 from models.models import Config
 
 config = Config()
+
+app = Flask(__name__)
+
 
 @app.route("/", methods=['GET'])
 @cross_origin()
@@ -32,6 +45,7 @@ def index():
     return response, HTTPStatus.OK
 
 
+@cross_origin()
 @app.route('/api/complex-word', methods=['GET'])
 def get_complex_words():
     try:
@@ -59,7 +73,7 @@ def get_complex_words():
                     predictedtags = [config.clasificadorobj.SVMPredict(rowdeploy) for rowdeploy in matrix_deploy]
                 elif flag=='0':
                     predictedtags = [config.clasificadorobj.SVMPredict2(rowdeploy) for rowdeploy in matrix_deploy]
-            if flag=='1':
+            if flag == '1':
                 for j in range(0, len(words)):
                     sentencetags = words[j]
                     for i in range(0, len(sentencetags)):
@@ -69,7 +83,7 @@ def get_complex_words():
                             numsil= config.clasificadorobj.Pyphenobj.getNSyl(sentencetags[i][4])
                             if  numsil >4:
                                 complex_words.append(sentencetags[i])
-            elif flag=='0':    
+            elif flag == '0':    
                 for j in range(0, len(words)):
                     sentencetags = words[j]
                     for i in range(0, len(sentencetags)):
@@ -85,8 +99,6 @@ def get_complex_words():
                 'status': 'success',
                 'data': complex_words
             }
-
-            print(response)
 
             return response, HTTPStatus.OK
             
@@ -107,6 +119,99 @@ def get_complex_words():
             }
 
         return response, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@cross_origin()
+@app.route('/api/disambiguate', methods=['GET'])
+def get_disambiguate():
+    try:
+        word = request.args.get('word')
+        phrase = request.args.get('phrase')
+        definition_list = request.args.get('definition_list')
+
+        if word and phrase and definition_list:
+            definition_list = json.loads(definition_list)
+
+            phrase = phrase.replace(word, "[MASK]")
+            phrase = "[CLS] " + phrase + " [SEP]"
+
+            tokens = tokenizer.tokenize(phrase)
+            indexed_tokens = tokenizer.convert_tokens_to_ids(tokens)
+            tokens_tensor = torch.tensor([indexed_tokens])
+            predictions = model(tokens_tensor)[0]
+            midx = tokens.index("[MASK]")
+            idxs = torch.argsort(predictions[0,midx], descending=True)
+            predicted_token = tokenizer.convert_ids_to_tokens(idxs[:5])
+
+            newpredicted_token=list()
+            tokensmlist=list()
+
+            if word in predicted_token:
+                predicted_token.remove(word)
+            
+            other_pipes = [pipe for pipe in nlp.pipe_names if pipe != "tagger"]
+            nlp.disable_pipes(*other_pipes)
+            for doc in nlp.pipe(predicted_token):
+                if len(doc) > 0:
+                    if doc[0].pos_=='PROPN' or doc[0].pos_=='NOUN':
+                        nword=inflector.pluralize(doc[0].text)
+                        newpredicted_token.append(nword)
+                newpredicted_token.append(doc)
+            doc = nlp(phrase)
+            for token in doc:
+                if token.pos_ == "NOUN" and token.text!=word:
+                    nword=inflector.pluralize(token.text)
+                    newpredicted_token.append(nword)
+                    newpredicted_token.append(token.text)
+                elif token.pos_=="VERB" or token.pos_ == "ADV" or token.pos_ == "PROPN" and token.text!=word:
+                    newpredicted_token.append(token.text)
+            
+            final = ""
+            temp = ""
+            for meaning in definition_list:
+                tokensmlist.append(tokenizer.tokenize(meaning))
+                cont=0
+                temp=0
+                for i in tokensmlist:
+                    cont=0
+                    for j in newpredicted_token:
+                        if j in i:
+                            cont=cont+1
+                    if cont>temp:
+                        final=i
+                        temp=cont
+            
+            if final == "":
+                final = definition_list[0]
+            else:
+                final = " ".join(final)
+                final = final.replace(' ##', '').replace(" .", ".").replace(" ,", ",")
+
+            response = {
+                'status': 'success',
+                'data': final
+            }
+
+            return response, HTTPStatus.OK
+        
+        else:
+            response = {
+                'status': 'error',
+                'data': {},
+                'error': 'Expected word, phrase and definition list arguments'
+            }
+
+            return response, HTTPStatus.BAD_REQUEST
+
+    except Exception as e:
+        response = {
+                'status': 'error',
+                'trace': str(e),
+                'error': 'Internal server error'
+            }
+
+        return response, HTTPStatus.INTERNAL_SERVER_ERROR
+
 
 @app.route('/api/definition-easy', methods=['GET'])
 def get_definition_easy():
