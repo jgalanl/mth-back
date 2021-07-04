@@ -49,9 +49,9 @@ class Config(object):
         # Lematizador
         self.lematizador = lemma()
 
-        # TODO. PPDB
-        #path = 'flask/resources/dicuniwords.csv'
-        #self.diccionarioparafrases=self.clasificadorobj.loadDicuniparafrases2(path)
+        # PPDB
+        path = 'resources/dicuniwords.csv'
+        self.diccionarioparafrases=self.clasificadorobj.loadDicuniparafrases2(path)
 
 
 class Text(object):
