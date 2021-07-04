@@ -13,6 +13,7 @@ flask/resources/sbw_vectors.bin
 flask/resources/llavebabel.txt
 flask/resources/thesaurus_key.txt
 flask/resources/ngrams
+flask/resources/pytorch/pytorch_model.bin
 
 data/credentials.txt
 data/lemario.txt
