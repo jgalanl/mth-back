@@ -213,6 +213,100 @@ def get_disambiguate():
         return response, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+@app.route('/api/synonyms', methods=['GET'])
+def get_synonyms():
+    try:
+        word = request.args.get('word')
+        sentencetags = request.args.get('sentencetags')
+        
+        if word and sentencetags:
+            sentencetags = json.loads(sentencetags)
+
+            dis2 = 0
+            synonims = list()
+            synonimsb = config.diccionario_babel.babelsearch(word)
+            synonims_final = list()
+
+            if len(config.dictionario_palabras.SSinonimos(word)):
+                if str(word[len(word) - 5:]) == 'mente':
+                    stem = word.replace("mente", "")
+                    synonims = config.dictionario_palabras.SSinonimos(stem)
+                else:
+                    stem = config.lematizador.lemmatize(word)
+                    synonims = config.dictionario_palabras.SSinonimos(stem)
+
+            if not synonims:
+                synonims = config.dictionario_palabras.SSinonimos(word)
+                stem = word
+        
+            synonims_total = list(synonims + synonimsb)
+            dic_synonims = dict.fromkeys(synonims_total)
+
+            for candidate in dic_synonims.keys():
+                candidatesentencetags = list(sentencetags)
+                candidatesentencetags[4] = str(candidate)
+                candidatelen = len(candidate)
+                wordlen = len(word)
+                candidatesentencetags[3] = candidatesentencetags[2] + candidatelen
+                candidatesentencetags[1] = str(candidatesentencetags[1])[
+                    :candidatesentencetags[2]] + str(candidate) + \
+                    candidatesentencetags[1][
+                    candidatesentencetags[2] + wordlen:]
+
+                listcandidatesentencetags = list()
+                listcandidatesentencetags.append(candidatesentencetags)
+        
+                # Buscar el sinonimo optimo
+                dis1 = config.clasificadorobj.word2vector.similarity(candidate, word)
+                window = config.clasificadorobj.getWindow(word, sentencetags[1], sentencetags[2])
+                diswindow1 = config.clasificadorobj.word2vector.similarity(window[1], candidate)
+                diswindow2 = config.clasificadorobj.word2vector.similarity(window[2], candidate)
+                dis3 = dis1 + diswindow1 + diswindow2
+
+                if dis2 < dis3 and word != candidate.lower():
+                    dis2 = dis3
+                    wordreplace = candidatesentencetags[4]
+                    if wordreplace:
+                        synonims_final.append(wordreplace)
+
+            # Si se ha encontrado al menos un sinonimo se devuelven los 3 mas significativos            
+            if len(synonims_final) > 0:
+                response = {
+                    'status': 'success',
+                    'data': synonims_final[:3]
+                }
+
+                return response, HTTPStatus.OK
+            # Si no se ha encontrado ningun sinonimo se devuelve una lista con
+            # la palabra original
+            else:
+                synonims_final.append(word)
+                response = {
+                    'status': 'success',
+                    'data': synonims_final
+                }
+
+                return response, HTTPStatus.OK
+
+        else:
+            response = {
+                'status': 'error',
+                'data': {},
+                'error': 'Expected word, phrase and definition list arguments'
+            }
+
+            return response, HTTPStatus.BAD_REQUEST
+    
+    except Exception as e:
+        response = {
+                'status': 'error',
+                'trace': str(e),
+                'error': 'Internal server error'
+            }
+
+        return response, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 @app.route('/api/definition-easy', methods=['GET'])
 def get_definition_easy():
     try:
