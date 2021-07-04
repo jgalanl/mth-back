@@ -307,6 +307,120 @@ def get_synonyms():
         return response, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+@app.route('/api/synonyms2', methods=['GET'])
+def get_synonyms_v2():
+    try:
+        word = request.args.get('word')
+        sentencetags = request.args.get('sentencetags')
+
+        if word and sentencetags:
+            sentencetags = json.loads(sentencetags)
+            dicsim={}
+            synonims_final = list()
+            dicsim2={}
+            synonims = list()
+            synonimsc=list()
+            synonimsb=list()
+            stem = config.lematizador.lemmatize(word)
+            synonimsb = config.diccionario_babel.babelsearch(word)
+            synonimsb+= config.diccionario_babel.babelsearch(stem)
+            
+            if word.lower() in config.diccionarioparafrases:
+                synonimsc=config.diccionarioparafrases[word.lower()]
+            else:
+                synonimsc.append(word)
+
+            if len(config.dictionario_palabras.SSinonimos(word)):
+                synonims = config.dictionario_palabras.SSinonimos(stem)
+
+            if not synonims:
+                synonims = config.dictionario_palabras.SSinonimos(word)
+                stem = word
+            
+            synonims_total = list(synonims + synonimsb+synonimsc)
+            dic_synonims = dict.fromkeys(synonims_total)
+
+            dic_synonims=text2tokens.eliminarstem(dic_synonims,word.lower())
+
+            for candidate in dic_synonims.keys():
+                candidatesentencetags = list(sentencetags)
+                candidatesentencetags[4] = str(candidate)
+                candidatelen = len(candidate)
+                wordlen = len(word)
+                candidatesentencetags[3] = candidatesentencetags[2] + candidatelen
+                candidatesentencetags[1] = str(candidatesentencetags[1])[:candidatesentencetags[2]] + str(candidate) 
+                + candidatesentencetags[1][candidatesentencetags[2] + wordlen:]
+                listcandidatesentencetags = list()
+                listcandidatesentencetags.append(candidatesentencetags)
+                
+                # Buscar el sinonimo optimo
+                dis1 = config.clasificadorobj.word2vector.similarity(candidate, word)
+                window = config.clasificadorobj.getWindowlexical(word, sentencetags[1], sentencetags[2])
+                diswindow1 = config.clasificadorobj.word2vector.similarity(window[1], candidate)
+                diswindow2 = config.clasificadorobj.word2vector.similarity(window[2], candidate)
+                dis3 = dis1 + diswindow1 + diswindow2
+
+                if word != candidate.lower() and candidate.lower()!='':
+                    dicsim[candidate]=dis3
+
+
+            if word.lower() == 'alcance':
+                dicsim2={k: v for k, v in sorted(dicsim.items(), key=lambda item: item[1])}
+                dicsim2=text2tokens.cleanspecificdic(dicsim2)
+            else:
+                dicsim=text2tokens.removestemrae(dicsim)
+                dicsim2={k: v for k, v in sorted(dicsim.items(), key=lambda item: item[1])}
+
+            # Si se ha encontrado al menos un sinonimo se devuelven los 3 mas significativos            
+            if len(dicsim2) > 0:
+                synonims_final=list(dicsim2)[-3:]
+                if config.clasificadorobj.getfreqRAE(synonims_final[0])==None:
+                    synonims_final.insert(0,False)
+                    response = {
+                        'status': 'success',
+                        'data': synonims_final
+                    }
+
+                    return response, HTTPStatus.OK
+
+                else:
+                    synonims_final.insert(0,True)
+                    response = {
+                        'status': 'success',
+                        'data': synonims_final
+                    }
+
+                    return response, HTTPStatus.OK
+            # Si no se ha encontrado ningun sinonimo se devuelve una lista con
+            # la palabra original
+            else:
+                synonims_final.append(word)
+                response = {
+                        'status': 'success',
+                        'data': synonims_final
+                    }
+
+                return response, HTTPStatus.OK
+        
+        else:
+            response = {
+                'status': 'error',
+                'data': {},
+                'error': 'Expected word, phrase and definition list arguments'
+            }
+
+            return response, HTTPStatus.BAD_REQUEST
+
+    except Exception as e:
+        response = {
+                'status': 'error',
+                'trace': str(e),
+                'error': 'Internal server error'
+            }
+
+        return response, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 @app.route('/api/definition-easy', methods=['GET'])
 def get_definition_easy():
     try:
