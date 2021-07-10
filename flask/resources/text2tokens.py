@@ -1,4 +1,3 @@
-import os
 import spacy
 import math
 from resources.clasificador import clasificador
