@@ -8,8 +8,7 @@ ADD . /flask
 
 # Spacy config
 RUN pip install -U pip setuptools wheel &&\
-    pip install -U spacy &&\
-    python -m spacy download es_core_news_md
+    pip install -U spacy
 
 # Babelnet config
 RUN cd resources/babelnetpy && python setup.py install
