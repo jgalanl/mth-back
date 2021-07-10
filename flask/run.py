@@ -421,6 +421,37 @@ def get_synonyms_v2():
         return response, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+@app.route('/api/lemmatize', methods=['GET'])
+def get_lemma():
+    try:
+        word = request.args.get('word')
+        if word:
+            lemma = text2tokens.lematizar(word)
+            response = {
+                        'status': 'success',
+                        'data': lemma
+                    }
+
+            return response, HTTPStatus.OK
+        else:
+            response = {
+                'status': 'error',
+                'data': {},
+                'error': 'Expected word, phrase and definition list arguments'
+            }
+
+            return response, HTTPStatus.BAD_REQUEST
+    
+    except Exception as e:
+        response = {
+                'status': 'error',
+                'trace': str(e),
+                'error': 'Internal server error'
+            }
+
+        return response, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
 @app.route('/api/definition-easy', methods=['GET'])
 def get_definition_easy():
     try:
