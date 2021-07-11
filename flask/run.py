@@ -3,6 +3,7 @@ import torch
 
 from flask import Flask, json, request, jsonify
 from flask_cors import cross_origin
+from flask_pymongo import PyMongo
 
 from http import HTTPStatus
 
@@ -30,6 +31,10 @@ from models.models import Config
 config = Config()
 
 app = Flask(__name__)
+
+app.config["MONGO_URI"] = 'mongodb://' + os.environ['MONGODB_USERNAME'] + ':' + os.environ['MONGODB_PASSWORD'] + '@' + os.environ['MONGODB_HOSTNAME'] + ':27017/' + os.environ['MONGODB_DATABASE']
+mongo = PyMongo(app)
+db = mongo.db
 
 
 @app.route("/", methods=['GET'])
@@ -433,7 +438,7 @@ def get_lemma():
             response = {
                 'status': 'error',
                 'data': {},
-                'error': 'Expected word, phrase and definition list arguments'
+                'error': 'Expected word arguments'
             }
 
             return response, HTTPStatus.BAD_REQUEST
@@ -467,6 +472,41 @@ def get_definition_easy():
                 return jsonify(definition_list=definition_list)
     except Exception as e:
         return str(e), HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@app.route('/api/lemma', methods=['GET'])
+def get_lemma():
+    try:
+        words = db.lemma.find()
+        response = {
+                        'status': 'success',
+                        'data': words
+                    }
+        return response, HTTPStatus.OK
+
+    except Exception as e:
+        response = {
+                'status': 'error',
+                'trace': str(e),
+                'error': 'Internal server error'
+            }
+
+        return response, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@app.route('/api/lemma', methods=['POST'])
+def post_lemma():
+    data = request.get_json(force=True)
+    lemma = {
+        'lemma': data['lemma']
+    }
+    db.lemma.insert_one(lemma)
+
+    response = {
+        'status': 'success',
+        'data': {}
+    }
+    return response, HTTPStatus.CREATED
 
 
 if __name__ == "__main__":
