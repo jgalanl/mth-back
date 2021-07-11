@@ -1,14 +1,10 @@
 ﻿import os
-import re
-
 import torch
 
 from flask import Flask, json, request, jsonify
-from flask.json import dumps
+from flask_cors import cross_origin
 
 from http import HTTPStatus
-from flask_cors import cross_origin
-from json import loads
 
 import requests
 from bs4 import BeautifulSoup
