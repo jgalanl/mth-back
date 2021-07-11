@@ -423,7 +423,7 @@ def get_synonyms_v2():
 
 
 @app.route('/api/lemmatize', methods=['GET'])
-def get_lemma():
+def get_lemmatize():
     try:
         word = request.args.get('word')
         if word:
