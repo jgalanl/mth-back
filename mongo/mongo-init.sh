@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 set -e
 
 # dbUser is the userName used from applicatoin code to interact with databases and dbPwd is the password for this user.
