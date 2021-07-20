@@ -3,7 +3,6 @@ import torch
 
 from flask import Flask, json, request, jsonify
 from flask_cors import cross_origin
-from flask_pymongo import PyMongo
 
 from http import HTTPStatus
 
@@ -26,16 +25,25 @@ from inflector import Inflector, Spanish
 nlp = spacy.load('es_core_news_md')
 inflector = Inflector(Spanish)
 
-from models.models import Config
+from models.models import Config, Lemma
 
 config = Config()
 
+from flask_mongoengine import MongoEngine
+
+db = MongoEngine()
 app = Flask(__name__)
 
-app.config["MONGO_URI"] = 'mongodb://' + os.environ['MONGODB_USERNAME'] + ':' + os.environ['MONGODB_PASSWORD'] + '@' + os.environ['MONGODB_HOSTNAME'] + ':27017/' + os.environ['MONGODB_DATABASE']
-mongo = PyMongo(app)
-db = mongo.db
+app.config['MONGODB_SETTINGS'] = {
+    'db': os.environ['MONGODB_DATABASE'],
+    'host': os.environ['MONGODB_HOSTNAME'],
+    'username': os.environ['MONGODB_USERNAME'],
+    'password': os.environ['MONGODB_PASSWORD'],
+    'port': 27017,
+    'connect': False
+}
 
+db.init_app(app)
 
 @app.route("/", methods=['GET'])
 @cross_origin()
@@ -477,10 +485,10 @@ def get_definition_easy():
 @app.route('/api/lemma', methods=['GET'])
 def get_lemma():
     try:
-        words = db.lemma.find()
+        lemmas = Lemma.objects()
         response = {
                         'status': 'success',
-                        'data': words
+                        'data': [lemma.serialize for lemma in lemmas]
                     }
         return response, HTTPStatus.OK
 
@@ -497,10 +505,9 @@ def get_lemma():
 @app.route('/api/lemma', methods=['POST'])
 def post_lemma():
     data = request.get_json(force=True)
-    lemma = {
-        'lemma': data['lemma']
-    }
-    db.lemma.insert_one(lemma)
+
+    lemma = Lemma(**data)
+    lemma.save()
 
     response = {
         'status': 'success',
