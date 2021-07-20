@@ -23,7 +23,7 @@ services:
       - backend
 
   mongodb:
-    image: mongo:4.0.8
+    build: ./mongo
     container_name: mongodb
     restart: unless-stopped
     command: mongod --auth
@@ -33,6 +33,8 @@ services:
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
       MONGODB_DATA_DIR: /data/db
       MONDODB_LOG_DIR: /dev/null
+      MONGODB_USERNAME: ${MONGODB_USERNAME}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD}
     volumes:
       - mongodbdata:/data/db
     networks:
