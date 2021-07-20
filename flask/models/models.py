@@ -1,9 +1,4 @@
-﻿from mongoengine import Document
-from mongoengine import DateTimeField, StringField, ReferenceField, ListField
-
-
-import torch
-
+﻿from mongoengine import Document, StringField, DecimalField
 
 from resources.clasificador import clasificador
 from resources.worddictionarybabel import worddictionarybabel
@@ -85,12 +80,18 @@ class Word(object):
             print(synonym)
 
 
-class lemmasrae(Document):
-    lemma = StringField(required=True)
-    # source = me.StringField(require=True)
-    # articles = me.ListField(me.StringField(), require=True)
-    # articles = me.ListField(me.Document(), require=True)
+class Lemma(Document):
+    lemma = StringField()
+    frecuencia = DecimalField()
 
-class Crea(Document):
-    lemma = StringField(required=True)
+    def __init__(self, lemma, frecuencia, *args, **kwargs):
+        super(Lemma, self).__init__(*args, **kwargs)
+        self.lemma = lemma
+        self.frecuencia = frecuencia
 
+    @property
+    def serialize(self):
+        return {
+            "name": self.lemma,
+            "frecuencia": float(self.frecuencia) if self.frecuencia else None
+        }
