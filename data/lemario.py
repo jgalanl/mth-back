@@ -1,7 +1,7 @@
 ﻿from os import execlpe
 from typing import cast
 import pymongo
-import datetime
+from datetime import datetime
 
 f = open('data/credentials.txt', 'r')
 cred = f.read()
@@ -15,7 +15,7 @@ def extraction(data):
 
     except Exception as e:
         with open('data/logs/lemario_extracion.log', 'a') as f:
-            f.write(f"Error during extraction of {data}. Date: {datetime.datetime.utcnow()}\n")
+            f.write(f"Error during extraction of {data}. Date: {datetime.utcnow()}\n")
         return {
             'result': False
         }
@@ -24,28 +24,31 @@ def transform(data):
     try:
         return {
             'result': True, 
-            'data': data
+            'data': {
+                'lemma': data
+            }
         }
 
     except Exception as e:
         with open('data/logs/lemario_transform.log', 'a') as f:
-            f.write(f"Error during extraction of {data}. Date: {datetime.datetime.utcnow()}\n")
+            f.write(f"Error during extraction of {data}. Date: {datetime.utcnow()}\n")
         return {
             'result': False
         }
 
 def load(data):
     try:
-        myclient = pymongo.MongoClient(cred)
-        mydb = myclient["dictionary"]
-        mycol = mydb['lemma']
-        result = mycol.find({"lemma":  data })
+        mongo_client = pymongo.MongoClient(cred)
+        db = mongo_client["dictionary"]
+        collection = db['lemma']
+        result = list(collection.find(data))
         if not result:
-            data['date_insert'] = datetime.datetime.utcnow()
-            mycol.insert_one(data)
-    except:
+            data['date_insert'] = datetime.utcnow()
+            collection.insert_one(data)
+    except Exception as e:
+        print(e)
         with open('data/logs/lemario_load.log', 'a') as f:
-            f.write(f"Error during loading of {data}. Date: {datetime.datetime.utcnow()}\n")
+            f.write(f"Error during loading of {data}. Date: {datetime.utcnow()}\n")
 
 
 def main():
@@ -58,7 +61,7 @@ def main():
                     load(data_tran['data'])
 
     with open('data/logs/rae_process.log', 'a') as f:
-            f.write(f"Rae ETL finished. Date: {datetime.datetime.utcnow()}\n")       
+            f.write(f"Rae ETL finished. Date: {datetime.utcnow()}\n")       
         
 if __name__ == "__main__":
     main()
