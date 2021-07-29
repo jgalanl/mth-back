@@ -1,4 +1,5 @@
-﻿from mongoengine import Document, StringField, DecimalField
+﻿from mongoengine import Document, StringField
+from mongoengine.fields import DateTimeField
 
 from resources.clasificador import clasificador
 from resources.worddictionarybabel import worddictionarybabel
@@ -82,16 +83,16 @@ class Word(object):
 
 class Lemma(Document):
     lemma = StringField()
-    frecuencia = DecimalField()
+    date_insert = DateTimeField()
 
-    def __init__(self, lemma, frecuencia, *args, **kwargs):
+    def __init__(self, lemma, date_insert, *args, **kwargs):
         super(Lemma, self).__init__(*args, **kwargs)
         self.lemma = lemma
-        self.frecuencia = frecuencia
+        self.date_insert = date_insert
 
     @property
     def serialize(self):
         return {
             "name": self.lemma,
-            "frecuencia": float(self.frecuencia) if self.frecuencia else None
+            "date_insert": self.date_insert
         }
