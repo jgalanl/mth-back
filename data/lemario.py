@@ -1,10 +1,8 @@
-﻿from os import execlpe
-from typing import cast
-import pymongo
-from datetime import datetime
+﻿from datetime import datetime
+import http
+import requests
 
-f = open('data/credentials.txt', 'r')
-cred = f.read()
+url = 'http://localhost:80/api/lemma'
 
 def extraction(data):
     try:
@@ -38,13 +36,10 @@ def transform(data):
 
 def load(data):
     try:
-        mongo_client = pymongo.MongoClient(cred)
-        db = mongo_client["dictionary"]
-        collection = db['lemma']
-        result = list(collection.find(data))
-        if not result:
-            data['date_insert'] = datetime.utcnow()
-            collection.insert_one(data)
+        r = requests.post(url, json=data)
+        if r.status_code == http.HTTPStatus.CREATED:
+            print(f'Lemma {data["lemma"]} created')
+
     except Exception as e:
         with open('data/logs/lemario_load.log', 'a') as f:
             f.write(f"Error during loading of {data}. Exception: {e}. Date: {datetime.utcnow()}\n")
