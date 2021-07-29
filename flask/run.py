@@ -487,10 +487,39 @@ def get_lemma():
     try:
         lemmas = Lemma.objects()
         response = {
-                        'status': 'success',
-                        'data': [lemma.serialize for lemma in lemmas]
-                    }
+            'status': 'success',
+            'data': [lemma.serialize for lemma in lemmas]
+            }
         return response, HTTPStatus.OK
+
+    except Exception as e:
+        response = {
+                'status': 'error',
+                'trace': str(e),
+                'error': 'Internal server error'
+            }
+
+        return response, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@app.route('/api/lemma/<string:lemma>', methods=['GET'])
+def get_lemma_by_id(lemma):
+    try:
+        # Comprobar si el lemma existe
+        lemma = lemma.lower()
+        lemma_obj = Lemma.objects(lemma=lemma).first()
+        if lemma_obj:
+            response = {
+                'status': 'success',
+                'data': lemma_obj.serialize
+                }
+            return response, HTTPStatus.OK
+        else:
+            response = {
+                'status': 'error',
+                'message': 'Resource does not exist'
+            }
+            return response, HTTPStatus.NOT_FOUND
 
     except Exception as e:
         response = {
@@ -504,16 +533,43 @@ def get_lemma():
 
 @app.route('/api/lemma', methods=['POST'])
 def post_lemma():
-    data = request.get_json(force=True)
+    try:
+        # Check if request is correct
+        data = request.get_json(force=True)
+        if data and data['lemma']:
+            # Comprobar si el lemma existe
+            find = Lemma.objects(lemma=data['lemma']).first()
+            if not find:
+                data['date_insert'] = datetime.utcnow()
+                lemma = Lemma(**data)
+                lemma.save()
 
-    lemma = Lemma(**data)
-    lemma.save()
+                response = {
+                    'status': 'success',
+                    'data': {}
+                }
+                return response, HTTPStatus.CREATED
+            else:
+                response = {
+                    'status': 'error',
+                    'message': 'Resource already exists'
+                }
+                return response, HTTPStatus.CONFLICT
+        else:
+            response = {
+                'status': 'error',
+                'message': 'Resource does not exist'
+            }
+            return response, HTTPStatus.NOT_FOUND
+    
+    except Exception as e:
+        response = {
+                'status': 'error',
+                'trace': str(e),
+                'error': 'Internal server error'
+            }
 
-    response = {
-        'status': 'success',
-        'data': {}
-    }
-    return response, HTTPStatus.CREATED
+        return response, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 if __name__ == "__main__":
