@@ -6,6 +6,8 @@ from flask_cors import cross_origin
 
 from http import HTTPStatus
 
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
 from markupsafe import escape
