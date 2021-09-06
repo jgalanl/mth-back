@@ -318,7 +318,7 @@ def get_synonyms():
         return response, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-@app.route('/api/synonyms2', methods=['GET'])
+@app.route('/api/synonyms/v2', methods=['GET'])
 def get_synonyms_v2():
     try:
         word = request.args.get('word')
@@ -484,7 +484,7 @@ def get_definition_easy():
         return str(e), HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-@app.route('/api/lemma', methods=['GET'])
+@app.route('/api/lemmas', methods=['GET'])
 def get_lemma():
     try:
         lemmas = Lemma.objects()
@@ -504,7 +504,7 @@ def get_lemma():
         return response, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-@app.route('/api/lemma/<string:lemma>', methods=['GET'])
+@app.route('/api/lemmas/<string:lemma>', methods=['GET'])
 def get_lemma_by_id(lemma):
     try:
         # Comprobar si el lemma existe
@@ -533,7 +533,7 @@ def get_lemma_by_id(lemma):
         return response, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
-@app.route('/api/lemma', methods=['POST'])
+@app.route('/api/lemmas', methods=['POST'])
 def post_lemma():
     try:
         # Check if request is correct
