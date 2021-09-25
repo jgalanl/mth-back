@@ -1,0 +1,9 @@
+﻿cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Jesús"
+  given-names: "Galán Llano"
+title: "Arquitectura para la integración de servicios de Procesamiento de Lenguaje Natural para la simplificación léxica en español"
+version: 1.0
+date-released: 2021-9-9
+url: "https://github.com/jgalanl/mth-back"
