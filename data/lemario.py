@@ -12,7 +12,7 @@ def extraction(data):
         }
 
     except Exception as e:
-        with open('data/logs/lemario_extracion.log', 'a') as f:
+        with open('logs/lemario_extracion.log', 'a') as f:
             f.write(f"Error during extraction of {data}. Exception: {e}. Date: {datetime.utcnow()}\n")
         return {
             'result': False
@@ -28,7 +28,7 @@ def transform(data):
         }
 
     except Exception as e:
-        with open('data/logs/lemario_transform.log', 'a') as f:
+        with open('logs/lemario_transform.log', 'a') as f:
             f.write(f"Error during extraction of {data}. Exception: {e}. Date: {datetime.utcnow()}\n")
         return {
             'result': False
@@ -41,12 +41,12 @@ def load(data):
             print(f'Lemma {data["lemma"]} created')
 
     except Exception as e:
-        with open('data/logs/lemario_load.log', 'a') as f:
+        with open('logs/lemario_load.log', 'a') as f:
             f.write(f"Error during loading of {data}. Exception: {e}. Date: {datetime.utcnow()}\n")
 
 
 def main():
-    with open('data/lemario.txt') as reader:
+    with open('lemario.txt') as reader:
         for line in reader.read().splitlines():
             data_ext = extraction(line)
             if data_ext['result']:
@@ -54,7 +54,7 @@ def main():
                 if data_tran['result']:
                     load(data_tran['data'])
 
-    with open('data/logs/lemario_process.log', 'a') as f:
+    with open('logs/lemario_process.log', 'a') as f:
             f.write(f"Rae ETL finished. Date: {datetime.utcnow()}\n")       
         
 if __name__ == "__main__":
