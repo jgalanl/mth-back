@@ -23,7 +23,7 @@ def transform(data):
         return {
             'result': True, 
             'data': {
-                'lemma': data
+                'lemma': data.lower()
             }
         }
 
