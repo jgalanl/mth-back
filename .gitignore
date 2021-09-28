@@ -16,9 +16,7 @@ flask/resources/ngrams
 flask/resources/pytorch/pytorch_model.bin
 
 data/credentials.txt
-data/lemario.txt
 data/missed_words.txt
-data/crea_total.txt
 data/transfor_errors.txt
 
 test/oxford_credentials.json
