@@ -5,29 +5,30 @@ from http import HTTPStatus
 # from bson.json_util import dumps
 from mongoengine import connect, Document, StringField, DecimalField
 
-from apispec import APISpec
-from apispec.ext.marshmallow import MarshmallowPlugin
-from apispec_webframeworks.flask import FlaskPlugin
 from marshmallow import Schema, fields
 
 app = Flask(__name__)
 
-connect('my_db', host='127.0.0.1', port=27017)
-# connect('my_db', username='my_user', password='my_password', authentication_source='admin')
-
-# app.config["MONGO_URI"] = 'mongodb://127.0.0.1:27017/mydb'
-# mongo = PyMongo(app)
-# db = mongo.db
+connect('test', host='127.0.0.1', port=27017)
 
 class Lemma(Document):
     lemma = StringField()
+    prev_lemma = StringField()
+    next_lemma = StringField()
     frecuencia = DecimalField()
+
+    def update(self, newdata):
+        for key,value in newdata.items():
+            setattr(self,key, value)
+        self.save()
 
     @property
     def serialize(self):
         return {
-            "name": self.lemma,
-            "frecuencia": float(self.frecuencia) if self.frecuencia else None
+            "lemma": self.lemma,
+            "frecuencia": float(self.frecuencia) if self.frecuencia else None,
+            "prev_lemma": self.prev_lemma,
+            "next_lemma": self.next_lemma
         }
 
 
@@ -126,16 +127,63 @@ def get_lemma_by_id(lemma):
 
 @app.route('/api/lemmas', methods=['POST'])
 def post_lemma():
+    try:
+        # Check if request is correct
+        data = request.get_json(force=True)
+        if data and data['lemma']:
+            # Comprobar si el lemma existe
+            find = Lemma.objects(lemma=data['lemma']).first()
+            if not find:
+                data['date_insert'] = datetime.utcnow()
+                lemma = Lemma(**data)
+                lemma.save()
+
+                response = {
+                    'status': 'success',
+                    'data': {}
+                }
+                return response, HTTPStatus.CREATED
+            else:
+                response = {
+                    'status': 'error',
+                    'message': 'Resource already exists'
+                }
+                return response, HTTPStatus.CONFLICT
+        else:
+            response = {
+                'status': 'error',
+                'message': 'Resource does not exist'
+            }
+            return response, HTTPStatus.NOT_FOUND
+    
+    except Exception as e:
+        response = {
+                'status': 'error',
+                'trace': str(e),
+                'error': 'Internal server error'
+            }
+
+        return response, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@app.route('/api/lemmas/<string:lemma>', methods=['PUT'])
+def put_lemma(lemma):
     data = request.get_json(force=True)
 
-    lemma = Lemma(**data)
-    lemma.save()
-
-    response = {
-        'status': 'success',
-        'data': {}
-    }
-    return response, HTTPStatus.CREATED
+    lemma_obj = Lemma.objects(lemma=lemma).first()
+    if lemma_obj:
+        lemma_obj.update(data)
+        response = {
+            'status': 'success',
+            'data': {}
+        }
+        return response, HTTPStatus.OK
+    else:
+        response = {
+            'status': 'error',
+            'message': 'Resource does not exist'
+        }
+        return response, HTTPStatus.NOT_FOUND
 
 
 if __name__ == "__main__":
