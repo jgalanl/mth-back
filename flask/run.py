@@ -574,6 +574,26 @@ def post_lemma():
         return response, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
+@app.route('/api/lemmas/<string:lemma>', methods=['PUT'])
+def put_lemma(lemma):
+    data = request.get_json(force=True)
+
+    lemma_obj = Lemma.objects(lemma=lemma).first()
+    if lemma_obj:
+        lemma_obj.update(data)
+        response = {
+            'status': 'success',
+            'data': {}
+        }
+        return response, HTTPStatus.OK
+    else:
+        response = {
+            'status': 'error',
+            'message': 'Resource does not exist'
+        }
+        return response, HTTPStatus.NOT_FOUND
+
+
 if __name__ == "__main__":
     ENVIRONMENT_DEBUG = os.environ.get("APP_DEBUG", True)
     ENVIRONMENT_PORT = os.environ.get("APP_PORT", 5000)
