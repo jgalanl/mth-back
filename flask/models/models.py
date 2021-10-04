@@ -83,16 +83,23 @@ class Word(object):
 
 class Lemma(Document):
     lemma = StringField()
+    prev_lemma = StringField()
+    next_lemma = StringField()
     date_insert = DateTimeField()
 
-    def __init__(self, lemma, date_insert, *args, **kwargs):
+    def __init__(self, lemma, date_insert, prev_lemma=None, next_lemma=None, *args, **kwargs):
         super(Lemma, self).__init__(*args, **kwargs)
         self.lemma = lemma
+        self.prev_lemma = prev_lemma
+        self.next_lemma = next_lemma
         self.date_insert = date_insert
+
 
     @property
     def serialize(self):
         return {
             "name": self.lemma,
+            "prev_lemma": self.prev_lemma,
+            "next_lemma": self.next_lemma,
             "date_insert": self.date_insert
         }
