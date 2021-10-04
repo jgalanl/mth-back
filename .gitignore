@@ -20,3 +20,4 @@ data/missed_words.txt
 data/transfor_errors.txt
 
 test/oxford_credentials.json
+test/mongo.py
