@@ -47,7 +47,6 @@ def load(data):
 
 
 def main():
-    """
     with open('lemario.txt') as reader:
         for line in reader.read().splitlines():
             data_ext = extraction(line)
@@ -55,7 +54,6 @@ def main():
                 data_tran = transform(data_ext['data'])
                 if data_tran['result']:
                     load(data_tran['data'])
-    """
     # Prev and next lemmas
     r = requests.get(url)
     data = r.json()['data']
