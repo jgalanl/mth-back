@@ -98,7 +98,7 @@ class Lemma(Document):
     @property
     def serialize(self):
         return {
-            "name": self.lemma,
+            "lemma": self.lemma,
             "prev_lemma": self.prev_lemma,
             "next_lemma": self.next_lemma,
             "date_insert": self.date_insert
