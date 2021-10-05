@@ -87,6 +87,7 @@ class Lemma(Document):
     next_lemma = StringField()
     date_insert = DateTimeField()
 
+
     def __init__(self, lemma, date_insert, prev_lemma=None, next_lemma=None, *args, **kwargs):
         super(Lemma, self).__init__(*args, **kwargs)
         self.lemma = lemma
@@ -94,6 +95,10 @@ class Lemma(Document):
         self.next_lemma = next_lemma
         self.date_insert = date_insert
 
+    def update(self, newdata):
+        for key,value in newdata.items():
+            setattr(self,key, value)
+        self.save()
 
     @property
     def serialize(self):
