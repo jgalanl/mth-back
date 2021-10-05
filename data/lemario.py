@@ -2,7 +2,7 @@
 import http
 import requests
 
-url = 'http://localhost:5000/api/lemmas'
+URL = 'http://localhost:5000/api/lemmas'
 
 
 def extraction(data):
@@ -37,7 +37,7 @@ def transform(data):
 
 def load(data):
     try:
-        r = requests.post(url, json=data)
+        r = requests.post(URL, json=data)
         if r.status_code == http.HTTPStatus.CREATED:
             print(f'Lemma {data["lemma"]} created')
 
@@ -48,7 +48,6 @@ def load(data):
 
 def main():
     try:
-        """
         with open('lemario.txt') as reader:
             for line in reader.read().splitlines():
                 data_ext = extraction(line)
@@ -56,34 +55,34 @@ def main():
                     data_tran = transform(data_ext['data'])
                     if data_tran['result']:
                         load(data_tran['data'])
-        """
+        
         # Prev and next lemmas
-        r = requests.get(url)
+        r = requests.get(URL)
         data = r.json()['data']
         for i in range(len(data)):
             if i == 0:
                 data_put = {
                     'lemma': data[i]['lemma'],
-                    'next_lemma': f'{url}/{data[i+1]["lemma"]}'
+                    'next_lemma': f'{URL}/{data[i+1]["lemma"]}'
                 }
-                put_url = f'{url}/{data[i]["lemma"]}'
+                put_url = f'{URL}/{data[i]["lemma"]}'
                 requests.put(put_url, json=data_put)
 
             elif i == len(data) - 1:
                 data_put = {
                     'lemma': data[i]['lemma'],
-                    'prev_lemma': f'{url}/{data[i-1]["lemma"]}'
+                    'prev_lemma': f'{URL}/{data[i-1]["lemma"]}'
                 }
-                put_url = f'{url}/{data[i]["lemma"]}'
+                put_url = f'{URL}/{data[i]["lemma"]}'
                 requests.put(put_url, json=data_put)
 
             else:
                 data_put = {
                     'lemma': data[i]['lemma'],
-                    'prev_lemma': f'{url}/{data[i-1]["lemma"]}',
-                    'next_lemma': f'{url}/{data[i+1]["lemma"]}'
+                    'prev_lemma': f'{URL}/{data[i-1]["lemma"]}',
+                    'next_lemma': f'{URL}/{data[i+1]["lemma"]}'
                 }
-                put_url = f'{url}/{data[i]["lemma"]}'
+                put_url = f'{URL}/{data[i]["lemma"]}'
                 requests.put(put_url, json=data_put)
 
         with open('logs/lemario_process.log', 'a+') as f:
