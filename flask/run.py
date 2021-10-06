@@ -583,9 +583,9 @@ def post_lemma():
 def put_lemma(lemma):
     try:
         data = request.get_json(force=True)
-
         lemma_obj = Lemma.objects(lemma=lemma).first()
         if lemma_obj:
+            del data['lemma']
             lemma_obj.update(data)
             response = {
                 'status': 'success',
