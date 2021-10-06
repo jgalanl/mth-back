@@ -1,14 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
-import pymongo
+import http
 import time
 import random
 import datetime
 
 FACIL_URL = 'http://diccionariofacil.org/diccionario/'
+URL = 'http://localhost:5000/api/lemmas'
 
-f = open('data/credentials.txt', 'r')
-cred = f.read()
 
 def extraction(word):
     try:
@@ -27,7 +26,7 @@ def extraction(word):
                     'result': False
                 }
     except:
-        with open('data/logs/facil_extracion.log', 'a') as f:
+        with open('logs/facil_extracion.log', 'a') as f:
             f.write(f"Error during extraction of {word} facil. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
@@ -36,7 +35,7 @@ def extraction(word):
 def transform(data):
     try:
         word = {}
-        word['articles'] = []
+        word['articles_facil'] = []
         # Get lemma
         word['lemma'] = data.find('h3', attrs={'class': 'underlinedTitle notTextTransform'}).next_element.strip()
         # Check masculine-feminine orthopraphy
@@ -56,14 +55,14 @@ def transform(data):
                 definition['definition'] = span_list[0].text
                 definition['example'] = span_list[2].text
                 lemma_dict['definitions'].append(definition)
-            word['articles'].append(lemma_dict)
+            word['articles_facil'].append(lemma_dict)
 
         return {
             'result': True,
             'data': word
             } 
     except:
-        with open('data/logs/facil_transform.log', 'a') as f:
+        with open('logs/facil_transform.log', 'a') as f:
             f.write(f"Error during transformation of {data} facil. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
@@ -71,13 +70,11 @@ def transform(data):
 
 def load(word):
     try:
-        myclient = pymongo.MongoClient(cred)
-        mydb = myclient["dictionary"]
-        mycol = mydb['lemmasFacil']
-        word['insertDate'] = datetime.datetime.utcnow()
-        mycol.insert_one(word)
+        r = requests.put(f'{URL}/{word["lemma"]}', json=word)
+        if r.status_code == http.HTTPStatus.CREATED:
+            print(f'Lemma {word["lemma"]} created')
     except:
-        with open('data/logs/facil_load.log', 'a') as f:
+        with open('logs/facil_load.log', 'a') as f:
             f.write(f"Error during loading of {word} facil. Date: {datetime.datetime.utcnow()}\n")
 
 def main():
@@ -106,7 +103,7 @@ def main():
                 if soup.find('li', {'class': 'next'}).find('a', {'class': 'disabled'}):
                     break
 
-    with open('data/logs/facil_process.log', 'a') as f:
+    with open('logs/facil_process.log', 'a') as f:
             f.write(f"Facil ETL finished. Date: {datetime.datetime.utcnow()}\n")
 
 if __name__ == "__main__":
