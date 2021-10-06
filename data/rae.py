@@ -159,7 +159,7 @@ def load(word):
 def main():
     with open('lemario.txt') as reader:
         for line in reader.read().splitlines():
-            time.sleep(random.uniform(0, 0.5))
+            #time.sleep(random.uniform(0, 0.5))
             data_ext = extraction(line)
             if data_ext['result']:
                 data_tran = transform(data_ext['data'])
