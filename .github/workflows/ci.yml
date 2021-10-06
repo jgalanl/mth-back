@@ -13,8 +13,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }} 
-          password: ${{ secrets.SSH_PRIVATE_KEY }} 
+          password: ${{ secrets.PASSWORD }} 
           port: 22
-          passphrase: ${{ secrets.PASSPHRASE }}
           script: cd ${{ secrets.PROJECT_PATH }} && git pull && docker-compose down && docker-compose build && docker-compose up -d
         
