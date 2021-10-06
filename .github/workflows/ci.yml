@@ -1,0 +1,23 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }} 
+          password: ${{ secrets.PASSWORD }} 
+          port: 22
+          script: |
+            cd ${{ secrets.PROJECT_PATH }}
+            git pull
+            sudo docker-compose down
+            sudo docker-compose build
+            sudo docker-compose up -d
