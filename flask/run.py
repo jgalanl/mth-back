@@ -487,12 +487,10 @@ def get_definition_easy():
 @app.route('/api/lemmas', methods=['GET'])
 def get_lemma():
     try:
-        """
         skip = request.args.get('skip', default = 0, type = int)
         limit = request.args.get('limit', default = 20, type = int)
         if limit > 20:
             limit = 20
-        """
         data = request.get_json()
         # lemmas = Lemma.objects().skip(skip).limit(limit)
         lemmas = Lemma.objects()
