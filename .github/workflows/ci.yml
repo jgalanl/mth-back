@@ -15,5 +15,5 @@ jobs:
           username: ${{ secrets.USERNAME }} 
           password: ${{ secrets.SSH_PRIVATE_KEY }} 
           port: 22
-          script: whoami 
+          script: cd ${{ secrets.PROJECT_PATH }} && git pull && docker-compose down && docker-compose build && docker-compose up -d
         
