@@ -1,8 +1,8 @@
-import pymongo
 import datetime
+import requests
+import http
 
-f = open('data/credentials.txt', 'r')
-cred = f.read()
+URL = 'http://localhost:5000/api/lemmas'
 
 def extraction(data):
     try: 
@@ -12,7 +12,7 @@ def extraction(data):
             'data': data
             }
     except:
-        with open('data/logs/crea_extracion.log', 'a') as f:
+        with open('logs/crea_extracion.log', 'a') as f:
             f.write(f"Error during extraction of {data} crea. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
@@ -31,7 +31,7 @@ def transform(data):
             'data': word
             } 
     except:
-        with open('data/logs/crea_transform.log', 'a') as f:
+        with open('logs/crea_transform.log', 'a') as f:
             f.write(f"Error during transformation of {data} crea. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
@@ -39,17 +39,15 @@ def transform(data):
 
 def load(word):
     try:
-        myclient = pymongo.MongoClient(cred)
-        mydb = myclient["frequencies"]
-        mycol = mydb['crea']
-        word['insert_date'] = datetime.datetime.utcnow()
-        mycol.insert_one(word)
+        r = requests.put(f'{URL}/{word["lemma"]}', json=word)
+        if r.status_code == http.HTTPStatus.CREATED:
+            print(f'Lemma {word["lemma"]} created')
     except:
-        with open('data/logs/crea_load.log', 'a') as f:
+        with open('logs/crea_load.log', 'a') as f:
             f.write(f"Error during loading of {word} crea. Date: {datetime.datetime.utcnow()}\n")
 
 def main():
-    with open('data/crea_total.txt') as reader:
+    with open('crea_total.txt') as reader:
         for line in reader.read().splitlines()[1:]:
             data_ext = extraction(line)
             if data_ext['result']:
@@ -57,7 +55,7 @@ def main():
                 if data_tran['result']:
                     load(data_tran['data'])
 
-    with open('data/logs/crea_process.log', 'a') as f:
+    with open('logs/crea_process.log', 'a') as f:
             f.write(f"Crea ETL finished. Date: {datetime.datetime.utcnow()}\n")
 
 
