@@ -492,7 +492,7 @@ def get_lemma():
         if limit > 20:
             limit = 20
         data = request.get_json()
-        # lemmas = Lemma.objects().skip(skip).limit(limit)
+        lemmas = Lemma.objects().skip(skip).limit(limit)
         lemmas = Lemma.objects()
         response = {
             'status': 'success',
