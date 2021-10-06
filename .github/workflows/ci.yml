@@ -8,11 +8,12 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v1
-      - name: Push to server
+      - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          passphrase: ${{ secrets.PASSWORD }}
-          key: ${{ secrets.KEY }}
-          script: whoami
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }} 
+          password: ${{ secrets.PASSWORD }} 
+          port: ${{ secrets.PORT }} 
+          script: whoami 
+        
