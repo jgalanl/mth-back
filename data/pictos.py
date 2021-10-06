@@ -4,7 +4,7 @@ import requests
 
 ARASAAC_URL = 'https://api.arasaac.org/api/pictograms/es/bestsearch/'
 PICTO_URL = 'https://api.arasaac.org/api/pictograms/'
-URL = 'http://163.117.129.205:80/api/lemmas'
+URL = 'http://localhost:5000/api/lemmas'
 
 
 def extraction(data):

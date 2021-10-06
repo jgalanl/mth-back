@@ -6,7 +6,7 @@ import random
 import datetime
 
 FACIL_URL = 'http://diccionariofacil.org/diccionario/'
-URL = 'http://163.117.129.205:80/api/lemmas'
+URL = 'http://localhost:5000/api/lemmas'
 
 
 def extraction(word):

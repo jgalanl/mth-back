@@ -10,7 +10,7 @@ from urllib.request import Request, urlopen
 from urllib.parse import quote
 
 RAE_URL = 'https://dle.rae.es/'
-URL = 'http://163.117.129.205:80/api/lemmas'
+URL = 'http://localhost:5000/api/lemmas'
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0',
