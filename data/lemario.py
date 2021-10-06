@@ -2,7 +2,7 @@
 import http
 import requests
 
-URL = 'http://localhost:5000/api/lemmas'
+URL = 'http://163.117.129.205:80/api/lemmas'
 
 
 def extraction(data):
