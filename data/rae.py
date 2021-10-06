@@ -1,23 +1,34 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-import json
-import pymongo
-import re
+import http
 import time
 import random
 import datetime
 
-RAE_URL = 'https://dle.rae.es/'
+from urllib.request import Request, urlopen
+from urllib.parse import quote
 
-f = open('data/credentials.txt', 'r')
-cred = f.read()
+RAE_URL = 'https://dle.rae.es/'
+URL = 'http://localhost:5000/api/lemmas'
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+    'Accept-Encoding': 'none',
+    'Accept-Language': 'en-US,en;q=0.8',
+    'Connection': 'keep-alive'
+}
 
 def extraction(word):
-    try:    
-        page = requests.get(url = RAE_URL + word)
-        if page.status_code == 200:
-            soup = BeautifulSoup(page.text, 'html.parser')
+    try:
+        word_string = quote(f'{word}')
+        request = Request(url=f'{RAE_URL}{word_string}', headers=headers)
+        response = urlopen(request)
+        if response.code == 200:
+            page = response.read()
+            soup = BeautifulSoup(page, 'html.parser')
             articles = soup.findAll('article')
             if len(articles) > 0:
                 return {
@@ -28,8 +39,8 @@ def extraction(word):
                 return {
                     'result': False
                 }
-    except:
-        with open('data/logs/crea_extracion.log', 'a') as f:
+    except Exception:
+        with open('logs/crea_extracion.log', 'a') as f:
             f.write(f"Error during extraction of {word} rae. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
@@ -129,7 +140,7 @@ def transform(data):
             'data': word
             } 
     except Exception as e:
-        with open('data/logs/rae_transform2.log', 'a') as f:
+        with open('logs/rae_transform2.log', 'a') as f:
             f.write(f"Error during transformation of {word['lemma']} rae. Date: {datetime.datetime.utcnow()}\n")
         return {
             'result': False
@@ -137,18 +148,17 @@ def transform(data):
 
 def load(word):
     try:
-        myclient = pymongo.MongoClient(cred)
-        mydb = myclient["dictionary"]
-        mycol = mydb['lemmasRae']
-        word['insertDate'] = datetime.datetime.utcnow()
-        mycol.insert_one(word)
+        r = requests.put(f'{URL}/{word["lemma"]}', json=word)
+        if r.status_code == http.HTTPStatus.CREATED:
+            print(f'Lemma {word["lemma"]} created')
+
     except:
-        with open('data/logs/rae_load.log', 'a') as f:
+        with open('logs/rae_load.log', 'a') as f:
             f.write(f"Error during loading of {word} rae. Date: {datetime.datetime.utcnow()}\n")
 
 def main():
-    with open('data/lemario.txt') as reader:
-        for line in reader.read().splitlines()[251:]:
+    with open('lemario.txt') as reader:
+        for line in reader.read().splitlines():
             time.sleep(random.uniform(0, 0.5))
             data_ext = extraction(line)
             if data_ext['result']:
@@ -156,7 +166,7 @@ def main():
                 if data_tran['result']:
                     load(data_tran['data'])
 
-    with open('data/logs/rae_process.log', 'a') as f:
+    with open('logs/rae_process.log', 'a') as f:
             f.write(f"Rae ETL finished. Date: {datetime.datetime.utcnow()}\n")       
         
 if __name__ == "__main__":

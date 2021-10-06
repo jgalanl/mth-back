@@ -1,5 +1,5 @@
 ﻿from mongoengine import Document, StringField
-from mongoengine.fields import DateTimeField
+from mongoengine.fields import DateTimeField, ListField
 
 from resources.clasificador import clasificador
 from resources.worddictionarybabel import worddictionarybabel
@@ -86,14 +86,23 @@ class Lemma(Document):
     prev_lemma = StringField()
     next_lemma = StringField()
     date_insert = DateTimeField()
+    source = StringField()
+    femenine = StringField()
+    references = StringField()
+    articles = ListField()
 
 
-    def __init__(self, lemma, date_insert, prev_lemma=None, next_lemma=None, *args, **kwargs):
+    def __init__(self, lemma, date_insert, prev_lemma=None, next_lemma=None, source=None, femenine=None, 
+                references=None, articles=None, *args, **kwargs):
         super(Lemma, self).__init__(*args, **kwargs)
         self.lemma = lemma
         self.prev_lemma = prev_lemma
         self.next_lemma = next_lemma
-        self.date_insert = date_insert
+        date_insert = date_insert
+        source = source
+        femenine = femenine
+        references = references
+        articles = articles
 
     def update(self, newdata):
         for key,value in newdata.items():
@@ -106,5 +115,9 @@ class Lemma(Document):
             "lemma": self.lemma,
             "prev_lemma": self.prev_lemma,
             "next_lemma": self.next_lemma,
-            "date_insert": self.date_insert
+            "date_insert": self.date_insert,
+            "source": self.source,
+            "femenine": self.femenine,
+            "references": self.references,
+            "lemma_dict": self.articles
         }
