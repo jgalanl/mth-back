@@ -71,7 +71,7 @@ def transform(data):
 def load(word):
     try:
         r = requests.put(f'{URL}/{word["lemma"]}', json=word)
-        if r.status_code == http.HTTPStatus.CREATED:
+        if r.status_code == http.HTTPStatus.OK:
             print(f'Lemma {word["lemma"]} created')
     except:
         with open('logs/facil_load.log', 'a') as f:

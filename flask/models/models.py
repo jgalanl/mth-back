@@ -96,7 +96,7 @@ class Lemma(Document):
     pictos = ListField(required=False, null=True)
 
 
-    def __init__(self, lemma, date_insert, prev_lemma='', next_lemma='', source='', femenine='', 
+    def __init__(self, lemma, date_insert='', prev_lemma='', next_lemma='', source='', femenine='', 
                     references='', articles=[], articles_facil=[], abs_freq='', norm_freq='', pictos=[], *args, **kwargs):
             super(Lemma, self).__init__(*args, **kwargs)
             self.lemma = lemma

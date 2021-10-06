@@ -53,7 +53,7 @@ def transform(data):
 def load(data):
     try:
         r = requests.put(f'{URL}/{data["lemma"]}', json=data)
-        if r.status_code == HTTPStatus.CREATED:
+        if r.status_code == HTTPStatus.OK:
             print(f'Lemma {data["lemma"]} created')
 
     except Exception as e:
