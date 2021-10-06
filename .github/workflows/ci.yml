@@ -7,15 +7,13 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: [ubuntu-latest]
     steps:
-      - name: step 1
-        run: echo ${{ secrets.HOST }}
       - uses: actions/checkout@v1
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }} 
-          password: ${{ secrets.PASSWORD }} 
+          password: ${{ secrets.SSH_PRIVATE_KEY }} 
           port: 22
           script: whoami 
         
