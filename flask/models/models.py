@@ -1,5 +1,5 @@
-﻿from mongoengine import Document, StringField
-from mongoengine.fields import DateTimeField, ListField
+﻿from mongoengine import Document
+from mongoengine.fields import DateTimeField, ListField, IntField, FloatField, StringField
 
 from resources.clasificador import clasificador
 from resources.worddictionarybabel import worddictionarybabel
@@ -82,27 +82,35 @@ class Word(object):
 
 
 class Lemma(Document):
-    lemma = StringField()
-    prev_lemma = StringField()
-    next_lemma = StringField()
-    date_insert = DateTimeField()
-    source = StringField()
-    femenine = StringField()
-    references = StringField()
-    articles = ListField()
+    lemma = StringField(required=True)
+    prev_lemma = StringField(required=False)
+    next_lemma = StringField(required=False)
+    date_insert = DateTimeField(required=True)
+    source = StringField(required=False)
+    femenine = StringField(required=False, null=True)
+    references = StringField(required=False)
+    articles = ListField(required=False)
+    articles_facil = ListField(required=False)
+    abs_freq = IntField(required=False)
+    norm_freq = FloatField(required=False, null=True)
+    pictos = ListField(required=False, null=True)
 
 
-    def __init__(self, lemma, date_insert, prev_lemma=None, next_lemma=None, source=None, femenine=None, 
-                references=None, articles=None, *args, **kwargs):
-        super(Lemma, self).__init__(*args, **kwargs)
-        self.lemma = lemma
-        self.prev_lemma = prev_lemma
-        self.next_lemma = next_lemma
-        date_insert = date_insert
-        source = source
-        femenine = femenine
-        references = references
-        articles = articles
+    def __init__(self, lemma, date_insert, prev_lemma='', next_lemma='', source='', femenine='', 
+                    references='', articles=[], articles_facil=[], abs_freq='', norm_freq='', pictos=[], *args, **kwargs):
+            super(Lemma, self).__init__(*args, **kwargs)
+            self.lemma = lemma
+            self.prev_lemma = prev_lemma
+            self.next_lemma = next_lemma
+            self.date_insert = date_insert
+            self.source = source
+            self.femenine = femenine
+            self.references = references
+            self.articles = articles
+            self.articles_facil = articles_facil
+            self.abs_freq = abs_freq
+            self.norm_freq = norm_freq
+            self.pictos = pictos
 
     def update(self, newdata):
         for key,value in newdata.items():
@@ -119,5 +127,9 @@ class Lemma(Document):
             "source": self.source,
             "femenine": self.femenine,
             "references": self.references,
-            "lemma_dict": self.articles
+            "articles": self.articles,
+            "articles_facil": self.articles_facil,
+            "abs_freq": self.abs_freq,
+            "norm_freq": self.norm_freq,
+            "pictos": self.pictos
         }
