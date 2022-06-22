@@ -33,7 +33,7 @@ mccabe==0.6.1
 mongoengine==0.23.0
 murmurhash==1.0.5
 nltk==3.6.2
-numpy==1.20.3
+numpy==1.22.0
 packaging==20.9
 pandas==1.2.4
 pathy==0.5.2
