@@ -77,7 +77,7 @@ typing-extensions==3.10.0.0
 urllib3==1.26.6
 uWSGI==2.0.19.1
 wasabi==0.8.2
-Werkzeug==2.0.1
+Werkzeug==2.2.3
 wrapt==1.12.1
 WTForms==2.3.3
 zipp==3.5.0
